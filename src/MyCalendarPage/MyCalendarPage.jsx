@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import DailyView from './Components/DailyView';
 import WeeklyView from './Components/WeeklyView';
 import MonthlyView from './Components/MonthlyView';
+import YearlyView from './Components/YearlyView';
 import AddMeetingModal from '../Home/Components/AddMeetingModal';
 import AddRequestModal from '../Home/Components/AddRequestModal';
 import AddTaskComponent from '../Home/Components/AddTaskComponent';
@@ -122,8 +123,10 @@ const MyCalendar = () => {
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
+            <button onClick={goToPrevious} className="px-4 py-2 bg-white border border-slate-100 rounded-full text-xs text-slate-500 hover:bg-slate-50 transition-all">قبلی</button>
+
             <div className="flex bg-white border border-slate-100 rounded-full p-1 shadow-sm">
-              {['ماهانه', 'هفتگی', 'روزانه'].map((item) => (
+              {['سالیانه', 'ماهانه', 'هفتگی', 'روزانه'].map((item) => (
                 <button
                   key={item}
                   onClick={() => changeView(item)}
@@ -135,9 +138,9 @@ const MyCalendar = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={goToPrevious} className="px-4 py-2 bg-white border border-slate-100 rounded-full text-xs text-slate-500 hover:bg-slate-50 transition-all">قبلی</button>
-              <button onClick={goToToday} className="px-4 py-2 bg-white border border-slate-100 rounded-full text-xs text-slate-500 hover:bg-slate-50 transition-all">امروز</button>
               <button onClick={goToNext} className="px-4 py-2 bg-white border border-slate-100 rounded-full text-xs text-slate-500 hover:bg-slate-50 transition-all">بعدی</button>
+
+              <button onClick={goToToday} className="px-4 py-2 bg-white border border-slate-100 rounded-full text-xs text-slate-500 hover:bg-slate-50 transition-all">فعلی</button>
             </div>
           </div>
 
@@ -180,6 +183,7 @@ const MyCalendar = () => {
         {view === 'روزانه' && <DailyView events={events} loading={loading} onEventClick={handleEventClick} />}
         {view === 'هفتگی' && <WeeklyView events={events} selectedDate={selectedDate} onEventClick={handleEventClick} />}
         {view === 'ماهانه' && <MonthlyView events={events} selectedDate={selectedDate} onEventClick={setSelectedDate} />}
+        {view === 'سالیانه' && <YearlyView events={events} selectedDate={selectedDate} onMonthSelect={setSelectedDate} />}
       </div>
     </div>
   );

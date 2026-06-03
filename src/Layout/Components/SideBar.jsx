@@ -57,7 +57,7 @@ const SideBar = ({ isOpen, onClose }) => {
     </Link>
   </li>
   <li>
-    <Link to="/calendar" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
+    <Link to="/mycalendar" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
       <FaCalendarAlt /> تقویم
     </Link>
   </li>

@@ -31,6 +31,13 @@ const getMonthlyRange = (date) => {
   return { fromDate, toDate };
 };
 
+const getYearlyRange = (date) => {
+  const current = new Date(date);
+  const fromDate = new Date(current.getFullYear(), 0, 1);
+  const toDate = new Date(current.getFullYear(), 11, 31, 23, 59, 59, 999);
+  return { fromDate, toDate };
+};
+
 export const CalendarProvider = ({ children }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [view, setView] = useState('روزانه');
@@ -58,6 +65,11 @@ export const CalendarProvider = ({ children }) => {
       const range = getWeeklyRange(current);
       range.fromDate.setHours(0, 0, 0, 0);
       range.toDate.setHours(23, 59, 59, 999);
+      return range;
+    }
+
+    if (currentView === 'سالیانه') {
+      const range = getYearlyRange(current);
       return range;
     }
 
@@ -120,6 +132,8 @@ export const CalendarProvider = ({ children }) => {
       current.setDate(current.getDate() - 1);
     } else if (view === 'هفتگی') {
       current.setDate(current.getDate() - 7);
+    } else if (view === 'سالیانه') {
+      current.setFullYear(current.getFullYear() - 1);
     } else {
       current.setMonth(current.getMonth() - 1);
     }
@@ -132,6 +146,8 @@ export const CalendarProvider = ({ children }) => {
       current.setDate(current.getDate() + 1);
     } else if (view === 'هفتگی') {
       current.setDate(current.getDate() + 7);
+    } else if (view === 'سالیانه') {
+      current.setFullYear(current.getFullYear() + 1);
     } else {
       current.setMonth(current.getMonth() + 1);
     }
