@@ -88,10 +88,10 @@ function Header({ onMenuToggle }) {
         </div>
         <div className="flex flex-col justify-center">
           <span className="text-base sm:text-2xl md:text-2xl font-bold text-white whitespace-nowrap leading-none">
-            {isLoadingUser ? 'در حال بارگذاری...' : (currentUser ? getUserFullName(currentUser) : 'دانشگاه اصفهان')}
+            دانشگاه اصفهان
           </span>
           <span className="text-xs text-slate-300 mt-0.5">
-            {isLoadingUser ? 'لطفاً صبر کنید' : (currentUser ? getUserPosition(currentUser) : 'University of Isfahan')}
+            University of Isfahan
           </span>
         </div>
       </div>
