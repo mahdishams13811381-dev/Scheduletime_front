@@ -1,49 +1,35 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import React, { useState } from "react";
+import { Toaster } from 'react-hot-toast';
 import './App.css';
 import RequestsPage from "./RequestsPage/RequestsPage";
-import CalendarPage from "./CalendarPage/CalendarPage";
 import { Home } from './Home/Home';
 import Header from './Layout/Components/Header';
 import SideBar from './Layout/Components/SideBar';
+import ProfileModal from './Layout/Components/ProfileModal';
 import RequestsList from "./RequestsPage/RequestsList/RequestsList";
 import MeetingPage from "./MeetingPage/MeetingPage";
 import MeetingsList from "./MeetingsList/MeetingsList";
-import Second_SideBar from "./Second_SideBar/Second_SideBar";
+import SecondSideBar from "./Second_SideBar/Second_SideBar";
 import AddMeetingModal from './Home/Components/AddMeetingModal';
 import AddRequestModal from './Home/Components/AddRequestModal';
 import AddTaskComponent from './Home/Components/AddTaskComponent';
 import MyTasks from './MyTasks/MyTask';
 import TaskAssigned from './TaskAssigned/TaskAssigned';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
-const SidebarManager = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  const location = useLocation(); // دریافت مسیر فعلی
-  const isHome = location.pathname === "/"; // بررسی اینکه آیا در صفحه خانه هستیم
-
-  return (
-    <div className="flex flex-shrink-0">
-      {/* سایدبار اول فقط در صفحه اصلی نمایش داده می‌شود */}
-      {isHome && (
-        <SideBar 
-          isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
-        />
-      )}
-      
-      {/* سایدبار دوم در همه صفحات نمایش داده می‌شود */}
-      <Second_SideBar />
-    </div>
-  );
-};
+import { UserProvider, useUser } from './Context/UserContext';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <BrowserRouter>
-      {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
-      <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-    </BrowserRouter>
+    <UserProvider>
+      <Toaster position="top-center" reverseOrder={false} />
+      <BrowserRouter>
+        {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
+        <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      </BrowserRouter>
+    </UserProvider>
   );
 }
 
@@ -51,6 +37,12 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
   const [activeModal, setActiveModal] = useState(null);
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const {
+    currentUser,
+    isProfileModalOpen,
+    closeProfileModal,
+    updateCurrentUser
+  } = useUser();
 
   return (
     <div className="w-full h-screen flex flex-col bg-[#f8fafc] overflow-hidden" dir="rtl">
@@ -65,7 +57,7 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
             setActiveModal={setActiveModal} 
           />
         ) : (
-          <div className="hidden md:block h-full"><Second_SideBar /></div>
+          <div className="hidden md:block h-full"><SecondSideBar /></div>
         )}
         
         {/* محتوای اصلی */}
@@ -90,6 +82,14 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
       {activeModal === 'meeting' && <AddMeetingModal isOpen={true} onClose={() => setActiveModal(null)} />}
       {activeModal === 'request' && <AddRequestModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'task' && <AddTaskComponent onClose={() => setActiveModal(null)} />}
+
+      <ProfileModal
+        user={currentUser}
+        isOpen={isProfileModalOpen}
+        onClose={closeProfileModal}
+        onSave={updateCurrentUser}
+        canEdit={true}
+      />
     </div>
   );
 }

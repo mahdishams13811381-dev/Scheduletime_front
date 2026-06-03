@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { Link, Links } from 'react-router-dom';
-import { FaCalendarAlt, FaUsers, FaFileAlt, FaRegFileAlt, FaPlus, FaEdit, FaSignOutAlt, FaPencilAlt, FaTimes, FaHome } from "react-icons/fa";
+import { Link } from 'react-router-dom';
+import { FaCalendarAlt, FaUsers, FaFileAlt, FaRegFileAlt, FaPlus, FaEdit, FaSignOutAlt, FaTimes, FaHome } from "react-icons/fa";
 
 import AddMeetingModal from "../../Home/Components/AddMeetingModal";
 import AddRequestModal from "../../Home/Components/AddRequestModal";
 import AddTaskComponent from "../../Home/Components/AddTaskComponent";
+import { useUser } from '../../Context/UserContext';
+import { getProfileImageUrl, getUserFullName, getUserPosition } from '../../Utils/userProfile';
 
 const SideBar = ({ isOpen, onClose }) => {
   const [activeModal, setActiveModal] = useState(null);
   const [taskModalConfig, setTaskModalConfig] = useState({ isOpen: false, forcedAssignee: null });
+  const {
+    currentUser,
+    isLoadingUser,
+    openProfileModal
+  } = useUser();
   
   const handleOpenModal = (e, modalType) => {
     e.stopPropagation();
@@ -38,8 +45,9 @@ const SideBar = ({ isOpen, onClose }) => {
             </div>
 
             <div className="flex flex-col items-center border-b border-gray-200 pb-5 mb-4">
-              <img src="https://i.pravatar.cc/40?img=68" alt="پروفایل" className="w-24 h-24 rounded-full border-2 border-indigo-600 p-0.5 mb-2" />
-              <h2 className="font-bold text-slate-800">نام کاربر</h2>
+              <img src={getProfileImageUrl(currentUser)} alt="پروفایل" className="w-24 h-24 rounded-full border-2 border-indigo-600 p-0.5 mb-2" />
+              <h2 className="font-bold text-slate-800">{isLoadingUser ? 'در حال بارگذاری...' : getUserFullName(currentUser)}</h2>
+              <p className="text-xs text-slate-500 mt-1">{isLoadingUser ? '...' : getUserPosition(currentUser)}</p>
             </div>
 
            <ul className="space-y-1"> 
@@ -93,7 +101,7 @@ const SideBar = ({ isOpen, onClose }) => {
           </div>
 
           <div className="p-4 border-t border-gray-200 bg-white">
-            <button className="w-full p-2 mb-2 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors">
+            <button onClick={openProfileModal} className="w-full p-2 mb-2 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors">
               <FaEdit /> ویرایش پروفایل
             </button>
             <button className="w-full p-2 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors">
