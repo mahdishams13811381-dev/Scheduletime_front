@@ -253,7 +253,7 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import { useMeeting } from '../../Services/MeetingContext';
 import toast from 'react-hot-toast';
 
-const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
+const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
   // --- هوک‌ها (Hooks) باید همیشه در ابتدای کامپوننت باشند ---
   const [meetingTitle, setMeetingTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState("");
@@ -317,6 +317,9 @@ const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
     setSubmitting(true);
     createMeeting(payload).then(() => {
       toast.success('جلسه با موفقیت ساخته شد.');
+      if (onCreated) {
+        onCreated();
+      }
       onClose();
     }).catch((err) => {
       console.error(err);

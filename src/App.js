@@ -20,6 +20,7 @@ import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
 import { useRequest } from './Services/RequestContext';
 import { MeetingProvider } from './Services/MeetingContext';
+import { CalendarProvider } from './Services/CalendarContext';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,11 +28,13 @@ function App() {
   return (
     <UserProvider>
       <MeetingProvider>
-        <Toaster position="top-center" reverseOrder={false} />
-        <BrowserRouter>
-          {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
-          <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-        </BrowserRouter>
+        <CalendarProvider>
+          <Toaster position="top-center" reverseOrder={false} />
+          <BrowserRouter>
+            {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
+            <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+          </BrowserRouter>
+        </CalendarProvider>
       </MeetingProvider>
     </UserProvider>
   );
