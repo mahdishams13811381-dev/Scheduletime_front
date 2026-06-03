@@ -37,6 +37,9 @@ import React from "react";
 
 
 function RequestComponent({ request, onAction, onView }) {
+  const created = request.CreatedAt ? new Date(request.CreatedAt).toLocaleString() : '';
+  const sender = request.SenderUser ? `${request.SenderUser.firstName || request.SenderUser.FirstName || ''} ${request.SenderUser.lastName || request.SenderUser.LastName || ''}`.trim() : '';
+
   return (
     <div className="border border-slate-100 rounded-xl p-3 bg-white shadow-sm">
       <div className="flex items-center justify-between mb-3">
@@ -44,15 +47,14 @@ function RequestComponent({ request, onAction, onView }) {
           <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
             <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </div>
-          <span className="text-sm font-bold text-slate-700">{request.name}</span>
+          <div className="min-w-0">
+            <div className="text-sm font-bold text-slate-700 truncate">{request.Title}</div>
+            <div className="text-[11px] text-slate-500">{request.Status} • {sender}</div>
+          </div>
         </div>
       </div>
-      
-      <div className="text-[11px] text-slate-500 mb-4 flex gap-2">
-        <span>{request.date}</span>
-        <span>|</span>
-        <span>{request.time}</span>
-      </div>
+
+      <div className="text-[11px] text-slate-500 mb-4">{created}</div>
 
       <button 
         onClick={onView}

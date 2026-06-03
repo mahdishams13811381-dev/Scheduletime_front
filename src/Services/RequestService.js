@@ -6,8 +6,20 @@ const toJson = async (res) => {
 };
 
 const RequestService = {
+  // existing name kept for backward compatibility
   getInboxRequests: async (userId) => {
     const res = await fetch(`${BASE}/api/request/my-inbox?userId=${userId}`);
+    return toJson(res);
+  },
+
+  // new names per spec
+  getMyInboxRequests: async (userId) => {
+    const res = await fetch(`${BASE}/api/request/my-inbox?userId=${userId}`);
+    return toJson(res);
+  },
+
+  getMyInboxRequestCount: async (userId) => {
+    const res = await fetch(`${BASE}/api/request/my-inbox/count?userId=${userId}`);
     return toJson(res);
   },
 

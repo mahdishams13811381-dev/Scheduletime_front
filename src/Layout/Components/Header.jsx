@@ -6,6 +6,9 @@ import NotificationComponent from './NotificationComponent'
 import AddMeetingModal from "../../Home/Components/AddMeetingModal";
 import { useUser } from '../../Context/UserContext';
 import { getProfileImageUrl, getUserFullName, getUserPosition } from '../../Utils/userProfile';
+import { useRequest } from '../../Services/RequestContext';
+import { useNotification } from '../../Services/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 function Header({ onMenuToggle }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -22,16 +25,12 @@ function Header({ onMenuToggle }) {
   const [viewingRequest, setViewingRequest] = useState(null);
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false)
 
-  const [requests, setRequests] = useState([
-    { id: 1, name: "محمد رضایی", date: "۱۴۰۵/۰۲/۰۵", time: "۸:۰۰ – ۹:۳۰" },
-    { id: 2, name: "سارا موسوی", date: "۱۴۰۵/۰۲/۰۵", time: "۸:۰۰ – ۹:۳۰" },
-  ]);
+  const { inbox, loadInbox, loadInboxCount } = useRequest();
+  const { items: notificationsItems, count: notificationsCount, loadItems, loadCount } = useNotification();
+  const navigate = useNavigate();
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "status", text: "درخواست شماره #۱۲۴ شما در مرحله بررسی نهایی دانشکده قرار گرفت.", timeAgo: "۱۰ دقیقه پیش" },
-    { id: 2, type: "meeting", text: "امروز ساعت ۱۳:۳۰ جلسه بررسی پروپوزال با دکتر احمدی دارید.", timeAgo: "۱ ساعت پیش" },
-    { id: 3, type: "status", text: "درخواست تایید نمرات شما تایید شده و به آموزش کل ارسال شد.", timeAgo: "دیروز" },
-  ]);
+  // useRequest provides inbox requests (CurrentOwnerUserId == current user)
+  // useNotification provides combined meeting/task notifications
 
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
@@ -40,7 +39,8 @@ function Header({ onMenuToggle }) {
   });
 
   const handleRequestAction = (id, message) => {
-    setRequests(prev => prev.filter(req => req.id !== id));
+    // after action, refresh inbox cache
+    loadInbox();
     setAlertConfig({
       isOpen: true,
       title: "عملیات موفق",
@@ -50,7 +50,9 @@ function Header({ onMenuToggle }) {
   };
 
   const handleNotificationRead = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    // simply refresh notifications after marking read (no API to mark read currently)
+    loadItems();
+    loadCount();
   };
 
   const closeAlert = () => {
@@ -107,9 +109,9 @@ function Header({ onMenuToggle }) {
             <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" className="w-[22px] h-[22px]">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            {requests.length > 0 && (
+            {inbox?.length > 0 && (
               <span className="absolute top-1 right-1 bg-rose-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-2 ring-[#0f172a]">
-                {requests.length}
+                {inbox.length}
               </span>
             )}
           </button>
@@ -125,13 +127,13 @@ function Header({ onMenuToggle }) {
                   </button>
                 </div>
                 <div className="p-3 flex flex-col gap-3 max-h-[60vh] md:max-h-[360px] overflow-y-auto">
-                  {requests.length > 0 ? (
-                    requests.map((req) => (
+                  {inbox && inbox.length > 0 ? (
+                    inbox.map((req) => (
                       <RequestComponent
                         key={req.id}
                         request={req}
                         onAction={handleRequestAction}
-                        onView={() => setViewingRequest(req)} // این خط باعث می‌شود با کلیک روی هر درخواست، آن در مودال ست شود
+                        onView={() => setViewingRequest(req)}
                       />
                     ))
                   ) : (
@@ -153,9 +155,9 @@ function Header({ onMenuToggle }) {
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            {notifications.length > 0 && (
+            {notificationsCount > 0 && (
               <span className="absolute top-1 right-1 bg-amber-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-2 ring-[#0f172a]">
-                {notifications.length}
+                {notificationsCount}
               </span>
             )}
           </button>
@@ -171,9 +173,9 @@ function Header({ onMenuToggle }) {
                   </button>
                 </div>
                 <div className="p-3 flex flex-col gap-3 max-h-[60vh] md:max-h-[360px] overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((notif) => (
-                      <NotificationComponent key={notif.id} notification={notif} onRead={handleNotificationRead} />
+                  {notificationsItems && notificationsItems.length > 0 ? (
+                    notificationsItems.map((notif) => (
+                      <NotificationComponent key={`${notif.ItemType}-${notif.EntityId}`} notification={notif} onRead={() => handleNotificationRead(notif.EntityId)} onClick={() => navigate(notif.NavigationUrl)} />
                     ))
                   ) : (
                     <div className="text-center py-6 text-xs text-slate-400 font-medium">هیچ اعلان جدیدی یافت نشد.</div>
@@ -217,8 +219,10 @@ function Header({ onMenuToggle }) {
           isOpen={isMeetingModalOpen} // این خط حیاتی بود که در کد شما خالی بود!
           onClose={() => {
             setIsMeetingModalOpen(false);
-            // اختیاری: اگر می‌خواهی بعد از ذخیره جلسه، درخواست از لیست حذف شود:
-            setRequests(prev => prev.filter(req => req.id !== viewingRequest?.id));
+            // اختیاری: اگر می‌خواهی بعد از ذخیره جلسه، درخواست از لیست حذف شود، ریفرش کش درخواست‌ها
+            loadInbox();
+            // همچنین ریفرش تعداد درخواست‌ها
+            typeof loadInboxCount === 'function' && loadInboxCount();
             setViewingRequest(null);
           }}
           initialData={{ title: viewingRequest?.name ? `جلسه با ${viewingRequest.name}` : "" }}

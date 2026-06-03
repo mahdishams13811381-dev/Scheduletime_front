@@ -72,7 +72,7 @@ const MyTasksCard = () => {
   };
 
   return (
-    <div className="bg-white w-full max-w-full p-6 rounded-3xl border border-slate-100 shadow-xl flex flex-col h-full overflow-hidden ring-2 ring-blue-500/50 shadow-[0_0_25px_rgba(15,23,42,0.22)] duration-300 hover:shadow-[0_0_35px_rgba(15,23,42,0.35)]" dir="rtl">
+    <div className="bg-white w-full max-w-full p-6 rounded-3xl border border-slate-100 shadow-xl flex flex-col  h-[350px] md:h-[300px] overflow-hidden ring-2 ring-blue-500/50 shadow-[0_0_25px_rgba(15,23,42,0.22)] duration-300 hover:shadow-[0_0_35px_rgba(15,23,42,0.35)]" dir="rtl">
       
       <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h3 className="text-base font-bold text-slate-800">کارهای من</h3>

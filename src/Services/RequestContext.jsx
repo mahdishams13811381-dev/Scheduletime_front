@@ -9,6 +9,7 @@ export const useRequest = () => useContext(RequestContext);
 
 export const RequestProvider = ({ children }) => {
   const [inbox, setInbox] = useState([]);
+  const [inboxCount, setInboxCount] = useState(0);
   const [myRequests, setMyRequests] = useState([]);
   const [grouped, setGrouped] = useState({ pending: [], approved: [], rejected: [] });
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,13 @@ export const RequestProvider = ({ children }) => {
     } catch (e) {
       console.error(e);
     } finally { setLoading(false); }
+  }, []);
+
+  const loadInboxCount = useCallback(async () => {
+    try {
+      const res = await RequestService.getMyInboxRequestCount(CURRENT_USER_ID);
+      setInboxCount(res?.count ?? 0);
+    } catch (e) { console.error(e); }
   }, []);
 
   const loadMyRequests = useCallback(async () => {
@@ -41,16 +49,18 @@ export const RequestProvider = ({ children }) => {
 
   useEffect(() => { loadInbox(); loadMyRequests(); loadGrouped(); }, [loadInbox, loadMyRequests, loadGrouped]);
 
+  useEffect(() => { loadInboxCount(); }, [loadInboxCount]);
+
   const createRequest = async (model) => {
     // model should include Title, Content, Status (number), SenderUserId, CurrentOwnerUserId, TagIds
     const created = await RequestService.createRequest(model);
     // refresh caches
-    await Promise.all([loadInbox(), loadMyRequests(), loadGrouped()]);
+    await Promise.all([loadInbox(), loadMyRequests(), loadGrouped(), loadInboxCount()]);
     return created;
   };
 
   return (
-    <RequestContext.Provider value={{ inbox, myRequests, grouped, loading, loadInbox, loadMyRequests, loadGrouped, createRequest }}>
+    <RequestContext.Provider value={{ inbox, inboxCount, myRequests, grouped, loading, loadInbox, loadMyRequests, loadGrouped, loadInboxCount, createRequest }}>
       {children}
     </RequestContext.Provider>
   );

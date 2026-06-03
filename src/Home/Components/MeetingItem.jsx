@@ -33,8 +33,8 @@ const MeetingItem = ({ title, description, date, time, type, participants }) => 
               className="w-8 h-8 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center overflow-hidden shadow-sm"
               style={{ zIndex: 10 - index }}
             >
-              {person.img ? (
-                <img src={person.img} alt={person.name} className="w-full h-full object-cover" />
+              {person.profileImageUrl ? (
+                <img src={person.profileImageUrl} alt={person.name} className="w-full h-full object-cover" />
               ) : (
                 <i className="fa-solid fa-user text-indigo-300 text-[10px]"></i>
               )}

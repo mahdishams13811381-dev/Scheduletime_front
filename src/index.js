@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { RequestProvider } from './Services/RequestContext';
+import { NotificationProvider } from './Services/NotificationContext';
 import reportWebVitals from './reportWebVitals';
 
 document.title = 'داشبورد دانشگاه اصفهان';
@@ -11,7 +12,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <RequestProvider>
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </RequestProvider>
   </React.StrictMode>
 );

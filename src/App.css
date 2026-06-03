@@ -34,3 +34,8 @@
 body, html, button, input, select, textarea {
   font-family: 'IRANSansX', sans-serif !important;
 }
+
+.calendar-large {
+  transform: scale(1.2);
+  transform-origin: top center;
+}
