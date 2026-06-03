@@ -87,10 +87,10 @@ function Header({ onMenuToggle }) {
           <img src={LogoUni} alt="لوگو" className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col justify-center">
-          <span className="text-base sm:text-2xl md:text-2xl font-bold text-white whitespace-nowrap leading-none">
+          <span className="text-base sm:text-xl md:text-2xl font-bold text-white whitespace-nowrap leading-none">
             دانشگاه اصفهان
           </span>
-          <span className="text-xs text-slate-300 mt-0.5">
+          <span className="text-xs hidden sm:block md:sm:block sm:text-xs md:text-xs text-slate-300 mt-0.5">
             University of Isfahan
           </span>
         </div>
@@ -184,7 +184,6 @@ function Header({ onMenuToggle }) {
           )}
         </div>
 
-        <button className="flex items-center justify-center text-slate-400 p-2 hover:text-white"><svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" className="w-[22px] h-[22px]"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
         <div onClick={openProfileModal} className="w-10 h-10 rounded-full border border-slate-700 overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 ring-indigo-500 transition-all">
           <img src={getProfileImageUrl(currentUser)} alt="پروفایل" className="w-full h-full object-cover" />
         </div>
