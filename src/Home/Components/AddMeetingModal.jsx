@@ -250,6 +250,8 @@ import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import { useMeeting } from '../../Services/MeetingContext';
+import toast from 'react-hot-toast';
 
 const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
   // --- هوک‌ها (Hooks) باید همیشه در ابتدای کامپوننت باشند ---
@@ -263,6 +265,9 @@ const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isStartOpen, setIsStartOpen] = useState(false);
   const [isEndOpen, setIsEndOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState('2');
+  const [submitting, setSubmitting] = useState(false);
+  const { createMeeting } = useMeeting();
 
   const searchRef = useRef(null);
   const startRef = useRef(null);
@@ -318,9 +323,7 @@ const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
       toast.error('خطا در ایجاد جلسه');
     }).finally(() => setSubmitting(false));
   };
-  const [selectedType, setSelectedType] = useState('2');
-  const [submitting, setSubmitting] = useState(false);
-  const { createMeeting } = useMeeting();
+
 
   const filteredUsers = allUsers.filter(u => u.name.includes(searchQuery) && !selectedParticipants.some(s => s.id === u.id));
 
@@ -381,7 +384,15 @@ const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
              </div>
           </div>
 
-          <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700">ذخیره جلسه</button>
+          <div className="flex items-center gap-2">
+            <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="px-3 py-2 border rounded-xl text-sm">
+              <option value="2">مجازی</option>
+              <option value="3">حضوری داخل دانشگاه</option>
+              <option value="4">حضوری خارج دانشگاه</option>
+              <option value="1">سایر</option>
+            </select>
+            <button disabled={submitting} type="submit" className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700">{submitting ? 'در حال ارسال...' : 'ذخیره جلسه'}</button>
+          </div>
         </form>
       </div>
     </div>
