@@ -5,11 +5,14 @@ import { Link } from 'react-router-dom';
 import { FaCheck } from "react-icons/fa";
 import { FaUserTag } from "react-icons/fa";
 import { FaUserTie } from "react-icons/fa";
+import { useUser } from '../Context/UserContext';
+import { getProfileImageUrl } from '../Utils/userProfile';
 
 
 
 const Second_SideBar = () => {
   const [currentMonth] = useState(new Date());
+  const { currentUser } = useUser();
   
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -23,7 +26,7 @@ const Second_SideBar = () => {
       <div className="w-16 bg-gray-50 flex flex-col items-center py-6 justify-between border-l border-gray-100">
         <div className="flex flex-col items-center gap-6">
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
-            <img src="https://i.pravatar.cc/40?img=68" alt="پرو" />
+            <img src={getProfileImageUrl(currentUser)} alt="پرو" className="w-full h-full object-cover" />
           </div>
           
 

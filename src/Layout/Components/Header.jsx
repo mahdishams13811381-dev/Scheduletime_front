@@ -183,14 +183,14 @@ function Header({ onMenuToggle }) {
             </>
           )}
         </div>
-
+        <button className="flex items-center hidden md:block sm:block justify-center text-slate-400 p-2 hover:text-white"><svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" className="w-[22px] h-[22px]"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
         <div onClick={openProfileModal} className="w-10 h-10 rounded-full border border-slate-700 overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 ring-indigo-500 transition-all">
           <img src={getProfileImageUrl(currentUser)} alt="پروفایل" className="w-full h-full object-cover" />
         </div>
       </div>
 
       {alertConfig.isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-2">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={closeAlert} />
           <div className="bg-white rounded-2xl p-5 w-full max-w-[320px] text-slate-800 shadow-2xl relative z-50 border border-slate-100 text-center animate-in scale-in duration-150">
             <h3 className="text-sm font-bold text-slate-900 mb-1">{alertConfig.title}</h3>
