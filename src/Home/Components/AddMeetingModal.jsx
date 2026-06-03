@@ -292,12 +292,35 @@ const AddMeetingModal = ({ isOpen, onClose, initialData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!meetingTitle.trim()) return alert("لطفاً عنوان جلسه را وارد کنید.");
-    if (selectedParticipants.length === 0) return alert("لطفاً حداقل یک عضو انتخاب کنید.");
-    
-    alert("جلسه با موفقیت ذخیره شد.");
-    onClose();
+    if (!meetingTitle.trim()) return toast.error("لطفاً عنوان جلسه را وارد کنید.");
+    if (!meetingDate) return toast.error("لطفاً تاریخ جلسه را انتخاب کنید.");
+    if (!selectedType) return toast.error("لطفاً نوع جلسه را انتخاب کنید.");
+
+    // Prepare payload according to CreateMeetingViewModel
+    const payload = {
+      title: meetingTitle.trim(),
+      subject: description || '',
+      meetingDate: meetingDate.toDate ? meetingDate.toDate().toISOString() : new Date(meetingDate).toISOString(),
+      requestDate: new Date().toISOString(),
+      status: 1, // Pending
+      type: parseInt(selectedType, 10),
+      requesterUserIds: [1], // current user
+      assignedUserIds: [1], // assign to current user by default
+      tagIds: []
+    };
+
+    setSubmitting(true);
+    createMeeting(payload).then(() => {
+      toast.success('جلسه با موفقیت ساخته شد.');
+      onClose();
+    }).catch((err) => {
+      console.error(err);
+      toast.error('خطا در ایجاد جلسه');
+    }).finally(() => setSubmitting(false));
   };
+  const [selectedType, setSelectedType] = useState('2');
+  const [submitting, setSubmitting] = useState(false);
+  const { createMeeting } = useMeeting();
 
   const filteredUsers = allUsers.filter(u => u.name.includes(searchQuery) && !selectedParticipants.some(s => s.id === u.id));
 

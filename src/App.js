@@ -19,17 +19,20 @@ import TaskAssigned from './TaskAssigned/TaskAssigned';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
 import { useRequest } from './Services/RequestContext';
+import { MeetingProvider } from './Services/MeetingContext';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <UserProvider>
-      <Toaster position="top-center" reverseOrder={false} />
-      <BrowserRouter>
-        {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
-        <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      </BrowserRouter>
+      <MeetingProvider>
+        <Toaster position="top-center" reverseOrder={false} />
+        <BrowserRouter>
+          {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
+          <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+        </BrowserRouter>
+      </MeetingProvider>
     </UserProvider>
   );
 }

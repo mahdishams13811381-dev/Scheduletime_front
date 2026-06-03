@@ -1,49 +1,109 @@
 import React, { useState , useRef, useEffect } from "react";
-import { toast, Toaster } from "react-hot-toast"; 
+import { toast, Toaster } from "react-hot-toast";
+import TaskService from "../../Services/TaskService";
 
-const AddTaskComponent = ({ onClose   , forcedAssignee}) => {
+const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
   const [status, setStatus] = useState("در حال انجام");
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("متوسط");
   const [searchQuery, setSearchQuery] = useState("");
-const [selectedUser, setSelectedUser] = useState(null); 
-const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-const [isSearchOpen, setIsSearchOpen] = useState(false);
-const [selectedParticipants, setSelectedParticipants] = useState([]);
-const [assigneeType, setAssigneeType] = useState(forcedAssignee || "خودم");
-const searchRef = useRef(null);
+  const [selectedUser, setSelectedUser] = useState(null); 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [assigneeType, setAssigneeType] = useState(forcedAssignee || "خودم");
+  const [isLoading, setIsLoading] = useState(false);
+  const searchRef = useRef(null);
+  
+  const CURRENT_USER_ID = 1; // Hardcoded as per requirements
+  
   const allUsers = [
-  { id: 101, name: "دکتر احمدی", role: "استاد راهنما", avatar: "https://i.pravatar.cc/150?u=101" },
-  { id: 102, name: "مهندس رضایی", role: "مدیر آموزش", avatar: "https://i.pravatar.cc/150?u=102" },
-  { id: 103, name: "سارا موسوی", role: "دانشجو", avatar: "https://i.pravatar.cc/150?u=103" },
-  { id: 104, name: "علی کریمی", role: "پژوهشگر", avatar: "https://i.pravatar.cc/150?u=104" },
-  { id: 105, name: "دکتر حسینی", role: "رئیس دانشکده", avatar: "https://i.pravatar.cc/150?u=105" },
-];
+    { id: 101, name: "دکتر احمدی", role: "استاد راهنما", avatar: "https://i.pravatar.cc/150?u=101" },
+    { id: 102, name: "مهندس رضایی", role: "مدیر آموزش", avatar: "https://i.pravatar.cc/150?u=102" },
+    { id: 103, name: "سارا موسوی", role: "دانشجو", avatar: "https://i.pravatar.cc/150?u=103" },
+    { id: 104, name: "علی کریمی", role: "پژوهشگر", avatar: "https://i.pravatar.cc/150?u=104" },
+    { id: 105, name: "دکتر حسینی", role: "رئیس دانشکده", avatar: "https://i.pravatar.cc/150?u=105" },
+  ];
+  
   const statusOptions = ["انجام نشده", "در حال انجام", "انجام شده"];
   const priorityOptions = ["کم", "متوسط", "زیاد"];
 
   const filteredUsers = allUsers.filter(u => 
-  u.name.includes(searchQuery) && !selectedParticipants.find(s => s.id === u.id)
-);
-  const handleSave = () => {
+    u.name.includes(searchQuery) && !selectedParticipants.find(s => s.id === u.id)
+  );
+
+  const mapStatusToPersian = (status) => {
+    const mapping = {
+      "Pending": "انجام نشده",
+      "InProgress": "در حال انجام",
+      "Completed": "انجام شده",
+      "WaitingSupervisorApproval": "درانتظار تایید"
+    };
+    return mapping[status] || status;
+  };
+
+  const mapPersianStatusToEnum = (persianStatus) => {
+    const mapping = {
+      "انجام نشده": "Pending",
+      "در حال انجام": "InProgress",
+      "انجام شده": "Completed"
+    };
+    return mapping[persianStatus] || "Pending";
+  };
+
+  const handleSave = async () => {
     if (!title || !title.trim()) {
       toast.error("لطفاً عنوان تسک را وارد کنید.");
       return;
     }
-    toast.success(`تسک "${title}" با اولویت "${priority}" و وضعیت "${status}" با موفقیت ذخیره شد.`);
-    window.alert(`✅ تسک "${title}" با موفقیت ذخیره شد!`);
-    
-    onClose();
-  };
-  useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (searchRef.current && !searchRef.current.contains(event.target)) {
-      setIsSearchOpen(false);
+
+    setIsLoading(true);
+
+    try {
+      // Determine supervisor user ID based on assignee type
+      let supervisorUserId = CURRENT_USER_ID;
+      if (assigneeType === "دیگران" && selectedParticipants.length > 0) {
+        supervisorUserId = selectedParticipants[0].id;
+      }
+
+      const taskModel = {
+        title: title.trim(),
+        description: title.trim(), // Use title as description if not provided
+        status: mapPersianStatusToEnum(status),
+        dueDate: null,
+        reminderDate: null,
+        supervisorApproved: false,
+        assignedByUserId: CURRENT_USER_ID,
+        supervisorUserId: supervisorUserId,
+        tagIds: []
+      };
+
+      const createdTask = await TaskService.createTask(taskModel);
+      toast.success(`تسک "${title}" با موفقیت ایجاد شد!`);
+      
+      // Call the callback to refresh the task list
+      if (onTaskCreated) {
+        onTaskCreated(createdTask);
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast.error(`خطا در ایجاد تسک: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
@@ -168,10 +228,11 @@ const searchRef = useRef(null);
 
           <button 
             type="button" 
-            onClick={handleSave} 
-            className="w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-all"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ذخیره
+            {isLoading ? "در حال ذخیره..." : "ذخیره"}
           </button>
         </form>
       </div>

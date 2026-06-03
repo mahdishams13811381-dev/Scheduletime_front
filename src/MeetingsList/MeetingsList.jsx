@@ -75,17 +75,16 @@ import { useSearchParams } from 'react-router-dom';
 import MeetingElement from './MeetingElement';
 import AddMeetingModal from './../Home/Components/AddMeetingModal';
 import MeetingReportModal from './MeetingReportModal';
+import { useMeeting } from '../Services/MeetingContext';
 
 const MeetingsList = () => {
   const [searchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState(null);
 
-  // دیتای پیش‌فرض برای نمایش در لیست
-  const [meetings, setMeetings] = useState([
-    { id: 1, name: "جلسه دفاع پایان‌نامه", description: "بررسی نهایی پروپوزال", date: "1405/03/10", time: "09:00", status: "تایید شده" },
-    { id: 2, name: "جلسه شورای آموزش", description: "تصویب برنامه‌های ترم جدید", date: "1405/03/15", time: "14:30", status: "در انتظار" },
-  ]);
+  const { grouped, loading } = useMeeting();
+
+  const meetings = [];
 
 const statusFilter = searchParams.get('status');
 const [isReportOpen, setIsReportOpen] = useState(false);
@@ -119,25 +118,47 @@ const handleOpenReport = (meeting) => {
             </tr>
           </thead>
           <tbody>
-            {meetings.length > 0 ? (
-              meetings.map((meeting) => (
-  <MeetingElement 
-    key={meeting.id} 
-    title={meeting.name}
-    description={meeting.description}
-    date={meeting.date}
-    time={meeting.time}
-    // اینجا مقدار واقعی استاتوس را از خودِ آبجکتِ جلسه می‌خوانیم:
-    status={meeting.status} 
-    onEdit={() => handleEditClick(meeting)}
-    onReport={() => handleOpenReport(meeting)}
-    onDelete={() => console.log("حذف:", meeting.id)}
-  />
-))
-            ) : (
-              <tr>
-                <td colSpan="6" className="p-8 text-center text-slate-400">موردی یافت نشد</td>
-              </tr>
+            {/* Render grouped meetings by status -> type */}
+            {loading && (
+              <tr><td colSpan="6" className="p-8 text-center">در حال بارگذاری...</td></tr>
+            )}
+
+            {!loading && (
+              <>
+                {['Pending','Held','Rejected'].map(statusKey => {
+                  const statusObj = (grouped || {})[statusKey.toLowerCase()] || {};
+                  const hasAny = Object.values(statusObj).some(arr => (arr || []).length > 0);
+                  return (
+                    hasAny ? (
+                      <React.Fragment key={statusKey}>
+                        <tr className="bg-slate-50"><td colSpan="6" className="p-3 font-bold">{statusKey}</td></tr>
+                        {['Online','InternalUniversity','ExternalUniversity','Other'].map(typeKey => {
+                          const list = statusObj[typeKey.charAt(0).toLowerCase() + typeKey.slice(1)] || [];
+                          if (!list || list.length === 0) return null;
+                          return (
+                            <React.Fragment key={typeKey}>
+                              <tr className="bg-white"><td colSpan="6" className="p-2 text-sm font-semibold text-slate-600">{typeKey}</td></tr>
+                              {list.map(meeting => (
+                                <MeetingElement
+                                  key={meeting.id}
+                                  title={meeting.title}
+                                  description={meeting.subject}
+                                  date={new Date(meeting.meetingDate).toLocaleDateString('fa-IR')}
+                                  time={new Date(meeting.meetingDate).toLocaleTimeString('fa-IR')}
+                                  status={meeting.status}
+                                  onEdit={() => handleEditClick(meeting)}
+                                  onReport={() => handleOpenReport(meeting)}
+                                  onDelete={() => console.log('delete', meeting.id)}
+                                />
+                              ))}
+                            </React.Fragment>
+                          );
+                        })}
+                      </React.Fragment>
+                    ) : null
+                  );
+                })}
+              </>
             )}
           </tbody>
         </table>

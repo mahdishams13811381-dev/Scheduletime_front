@@ -1,20 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TaskItem from "./TaskItem";
-import AddTaskComponent from "./AddTaskComponent"; 
+import AddTaskComponent from "./AddTaskComponent";
 import EditTaskModal from "./EditTaskModal";
+import TaskService from "../../Services/TaskService";
 
 const MyTasksCard = () => {
+  const CURRENT_USER_ID = 1;
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [tasksData, setTasksData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // دیتای نمونه
-  const [tasksData, setTasksData] = useState([
-    { id: 1, title: "عنوان کار اول", status: "انجام نشده", priority: "متوسط" },
-    { id: 2, title: "عنوان کار دوم", status: "در حال انجام", priority: "زیاد" },
-    { id: 3, title: "عنوان کار سوم", status: "در حال انجام", priority: "کم" },
-    { id: 4, title: "عنوان کار چهارم", status: "انجام شده", priority: "متوسط" }
-  ]);
+  const mapStatusToPersian = (status) => {
+    const mapping = {
+      "Pending": "انجام نشده",
+      "InProgress": "در حال انجام",
+      "Completed": "انجام شده",
+      "WaitingSupervisorApproval": "درانتظار تایید"
+    };
+    return mapping[status] || status;
+  };
+
+  const loadTasks = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const tasks = await TaskService.getMyTasks(CURRENT_USER_ID);
+      // Map backend data to UI format
+      const formattedTasks = tasks.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        status: mapStatusToPersian(task.status),
+        dueDate: task.dueDate,
+        reminderDate: task.reminderDate,
+        assignedByUser: task.assignedByUser,
+        supervisorUser: task.supervisorUser,
+        createdAt: task.createdAt,
+        supervisorApproved: task.supervisorApproved,
+        tags: task.tags
+      }));
+      setTasksData(formattedTasks);
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+      setError("خطا در بارگذاری کارها");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
 
   const handleEditTask = (task) => {
     setEditingTask(task);
@@ -24,6 +64,11 @@ const MyTasksCard = () => {
   const handleSaveTask = (updatedTask) => {
     setTasksData(tasksData.map(t => t.id === updatedTask.id ? updatedTask : t));
     setEditingTask(null);
+  };
+
+  const handleTaskCreated = (newTask) => {
+    // Refresh the task list
+    loadTasks();
   };
 
   return (
@@ -45,15 +90,32 @@ const MyTasksCard = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="flex flex-col">
-          {tasksData.map((task) => (
-            <TaskItem key={task.id} task={task} onEdit={handleEditTask} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <p className="text-slate-500 text-sm">در حال بارگذاری...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-32">
+            <p className="text-red-500 text-sm">{error}</p>
+          </div>
+        ) : tasksData.length === 0 ? (
+          <div className="flex items-center justify-center h-32">
+            <p className="text-slate-400 text-sm">کاری موجود نیست</p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {tasksData.map((task) => (
+              <TaskItem key={task.id} task={task} onEdit={handleEditTask} />
+            ))}
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
-        <AddTaskComponent onClose={() => setIsModalOpen(false)} />
+        <AddTaskComponent 
+          onClose={() => setIsModalOpen(false)} 
+          onTaskCreated={handleTaskCreated}
+        />
       )}
 
       <EditTaskModal 

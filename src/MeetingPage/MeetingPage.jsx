@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
 import MeetingRow from './Components/MeetingRow';
 import AddMeetingModal from './../Home/Components/AddMeetingModal'
+import { useMeeting } from '../Services/MeetingContext';
 
 const MeetingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,8 +20,7 @@ const MeetingPage = () => {
   const tabs = ["همه جلسات", "سایر جلسات", "جلسات آنلاین", "جلسات حضوری خارج دانشگاه", "جلسات حضوری داخل دانشگاه"];
 
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('myAppData');
-    return saved ? JSON.parse(saved) : {
+    return {
       "جلسات حضوری داخل دانشگاه": [],
       "جلسات حضوری خارج دانشگاه": [],
       "جلسات آنلاین": [],
@@ -29,9 +29,33 @@ const MeetingPage = () => {
   });
 
   // ذخیره در localStorage با هر تغییر در data
+  const { grouped, loadGrouped } = useMeeting();
+
   useEffect(() => {
-    localStorage.setItem('myAppData', JSON.stringify(data));
-  }, [data]);
+    // map grouped data into Persian column keys
+    if (!grouped) return;
+    const map = {
+      "جلسات حضوری داخل دانشگاه": [],
+      "جلسات حضوری خارج دانشگاه": [],
+      "جلسات آنلاین": [],
+      "سایر جلسات": []
+    };
+
+    const addTo = (meeting) => {
+      const type = (meeting.type || '').toLowerCase();
+      if (type === 'online') map['جلسات آنلاین'].push(meeting);
+      else if (type === 'internaluniversity') map['جلسات حضوری داخل دانشگاه'].push(meeting);
+      else if (type === 'externaluniversity') map['جلسات حضوری خارج دانشگاه'].push(meeting);
+      else map['سایر جلسات'].push(meeting);
+    };
+
+    ['pending','held','rejected'].forEach(s => {
+      const statusObj = grouped[s] || {};
+      Object.values(statusObj).forEach(arr => (arr || []).forEach(addTo));
+    });
+
+    setData(map);
+  }, [grouped]);
 
   const handleAddMeeting = (newRequest) => {
   console.log("در حال افزودن جلسه:", newRequest); // این خط را اضافه کنید

@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import MeetingItem from "./MeetingItem";
 import AddMeetingModal from "./AddMeetingModal"; // 🔹 ایمپورت کامپوننت جدید فرم
+import { useMeeting } from '../../Services/MeetingContext';
 
 const MeetingsCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const meetingsData = [
-    { id: 1, title: "جلسه ی هفتگی", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", date: "۱۴۰۵/۰۲/۰۵", time: "۰۸:۰۰ - ۰۹:۳۰", type: "مجازی", participants: [{ id: 101 }, { id: 102 }] },
-    { id: 2, title: "جلسه ی شورا", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", date: "۱۴۰۵/۰۲/۰۵", time: "۰۸:۰۰ - ۰۹:۳۰", type: "مجازی", participants: [{ id: 103 }, { id: 104 }] },
-    { id: 3, title: "جلسه ی شورا", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", date: "۱۴۰۵/۰۲/۰۵", time: "۰۸:۰۰ - ۰۹:۳۰", type: "مجازی", participants: [{ id: 103 }, { id: 104 }] }
-  ];
+  const { inbox } = useMeeting();
+  const meetingsData = inbox || [];
 
   return (
     <>
@@ -32,7 +30,14 @@ const MeetingsCard = () => {
         {/* List */}
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 overscroll-contain touch-pan-y [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300">
           {meetingsData.map((meeting) => (
-            <MeetingItem key={meeting.id} {...meeting} />
+            <MeetingItem key={meeting.id}
+              title={meeting.title}
+              description={meeting.subject}
+              date={new Date(meeting.meetingDate).toLocaleDateString('fa-IR')}
+              time={new Date(meeting.meetingDate).toLocaleTimeString('fa-IR')}
+              type={meeting.type}
+              participants={(meeting.assignedUsers || []).slice(0,4).map(u => ({ id: u.id, name: u.firstName + ' ' + u.lastName }))}
+            />
           ))}
         </div>
 
