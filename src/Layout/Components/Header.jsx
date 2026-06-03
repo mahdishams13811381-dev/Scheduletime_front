@@ -9,23 +9,23 @@ function Header({ onMenuToggle }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false); // استیت جدید برای مودال پروفایل
-  
+
   const chatRef = useRef(null);
   const notifRef = useRef(null);
 
   const [viewingRequest, setViewingRequest] = useState(null);
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false)
-const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-const [userProfile, setUserProfile] = useState({
-  name: "دکتر احمدی",
-  academicTitle: "استاد تمام",
-  university: "دانشگاه اصفهان",
-  faculty: "دانشکده مهندسی",
-  bio: "تخصص در هوش مصنوعی و داده‌کاوی.",
-  avatar: "https://i.pravatar.cc/40?img=68"
-});
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    name: "دکتر احمدی",
+    academicTitle: "استاد تمام",
+    university: "دانشگاه اصفهان",
+    faculty: "دانشکده مهندسی",
+    bio: "تخصص در هوش مصنوعی و داده‌کاوی.",
+    avatar: "https://i.pravatar.cc/40?img=68"
+  });
 
-const [requests, setRequests] = useState([
+  const [requests, setRequests] = useState([
     { id: 1, name: "محمد رضایی", date: "۱۴۰۵/۰۲/۰۵", time: "۸:۰۰ – ۹:۳۰" },
     { id: 2, name: "سارا موسوی", date: "۱۴۰۵/۰۲/۰۵", time: "۸:۰۰ – ۹:۳۰" },
   ]);
@@ -43,14 +43,14 @@ const [requests, setRequests] = useState([
   });
 
   const handleRequestAction = (id, message) => {
-  setRequests(prev => prev.filter(req => req.id !== id));
+    setRequests(prev => prev.filter(req => req.id !== id));
     setAlertConfig({
-    isOpen: true,
-    title: "عملیات موفق",
-    message: message
-  });
-  setViewingRequest(null);
-};
+      isOpen: true,
+      title: "عملیات موفق",
+      message: message
+    });
+    setViewingRequest(null);
+  };
 
   const handleNotificationRead = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
@@ -60,13 +60,13 @@ const [requests, setRequests] = useState([
     setAlertConfig(prev => ({ ...prev, isOpen: false }));
   };
   const handleSave = (updatedData) => {
-  setUserProfile(updatedData);
-  console.log("اطلاعات ذخیره شد:", updatedData);
-};
+    setUserProfile(updatedData);
+    console.log("اطلاعات ذخیره شد:", updatedData);
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (alertConfig.isOpen) return; 
+      if (alertConfig.isOpen) return;
       if (chatRef.current && !chatRef.current.contains(event.target)) setChatOpen(false);
       if (notifRef.current && !notifRef.current.contains(event.target)) setNotifOpen(false);
     }
@@ -75,11 +75,11 @@ const [requests, setRequests] = useState([
   }, [alertConfig.isOpen]);
 
   return (
-    <header className="w-full h-20 bg-[#0f172a] flex items-center justify-between px-4 md:px-6 z-30 relative" dir="rtl">      
-      
+    <header className="w-full h-20 bg-[#0f172a] flex items-center justify-between px-4 md:px-6 z-30 relative" dir="rtl">
+
       {/* سمت راست: منو همبرگری و لوگو */}
-      <div className="flex items-center gap-3 h-full select-none">
-        <button 
+      <div className="flex items-center h-full select-none">
+        <button
           onClick={onMenuToggle}
           className="md:hidden flex items-center justify-center text-slate-300 w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer"
         >
@@ -90,11 +90,11 @@ const [requests, setRequests] = useState([
           </svg>
         </button>
 
-        <div className="flex items-center justify-center w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 flex-shrink-0">
+        <div className="flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-2 flex-shrink-0">
           <img src={LogoUni} alt="لوگو" className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col justify-center">
-          <span className="text-base sm:text-2xl md:text-3xl font-bold text-white whitespace-nowrap leading-none">دانشگاه اصفهان</span>
+          <span className="text-base sm:text-2xl md:text-2xl font-bold text-white whitespace-nowrap leading-none">دانشگاه اصفهان</span>
           <span className="text-xs text-slate-300 mt-0.5">University of Isfahan</span>
         </div>
       </div>
@@ -127,20 +127,20 @@ const [requests, setRequests] = useState([
                     <svg stroke="currentColor" fill="none" strokeWidth="2.5" viewBox="0 0 24 24" className="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
-      <div className="p-3 flex flex-col gap-3 max-h-[60vh] md:max-h-[360px] overflow-y-auto">
-  {requests.length > 0 ? (
-    requests.map((req) => (
-      <RequestComponent 
-        key={req.id} 
-        request={req} 
-        onAction={handleRequestAction} 
-        onView={() => setViewingRequest(req)} // این خط باعث می‌شود با کلیک روی هر درخواست، آن در مودال ست شود
-      />
-    ))
-  ) : (
-    <div className="text-center py-6 text-xs text-slate-400 font-medium">هیچ درخواست جدیدی وجود ندارد.</div>
-  )}
-</div>
+                <div className="p-3 flex flex-col gap-3 max-h-[60vh] md:max-h-[360px] overflow-y-auto">
+                  {requests.length > 0 ? (
+                    requests.map((req) => (
+                      <RequestComponent
+                        key={req.id}
+                        request={req}
+                        onAction={handleRequestAction}
+                        onView={() => setViewingRequest(req)} // این خط باعث می‌شود با کلیک روی هر درخواست، آن در مودال ست شود
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-xs text-slate-400 font-medium">هیچ درخواست جدیدی وجود ندارد.</div>
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -186,19 +186,19 @@ const [requests, setRequests] = useState([
             </>
           )}
         </div>
-        
+
         <button className="flex items-center justify-center text-slate-400 p-2 hover:text-white"><svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" className="w-[22px] h-[22px]"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
-        <div onClick={() => setIsSettingsOpen(true)} className="w-8 h-8 rounded-full border border-slate-700 overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 ring-indigo-500 transition-all">
-  <img src={userProfile.avatar} alt="پروفایل" className="w-full h-full object-cover" />
-</div>
+        <div onClick={() => setIsSettingsOpen(true)} className="w-10 h-10 rounded-full border border-slate-700 overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 ring-indigo-500 transition-all">
+          <img src={userProfile.avatar} alt="پروفایل" className="w-full h-full object-cover" />
+        </div>
       </div>
-      <ProfileModal 
-  user={userProfile} 
-  isOpen={isSettingsOpen} 
-  onClose={() => setIsSettingsOpen(false)} 
-  onSave={handleSave}
-  canEdit={true} // چون خودش است، دکمه ویرایش فعال می‌شود
-/>
+      <ProfileModal
+        user={userProfile}
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={handleSave}
+        canEdit={true} // چون خودش است، دکمه ویرایش فعال می‌شود
+      />
 
       {alertConfig.isOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
@@ -210,31 +210,31 @@ const [requests, setRequests] = useState([
           </div>
         </div>
       )}
-     {viewingRequest && (
-  <RequestDetailModal 
-    request={viewingRequest} 
-    onClose={() => setViewingRequest(null)} 
-    onAction={(message) => handleRequestAction(viewingRequest.id, message)}
-    onOpenMeeting={() => {
-      setIsMeetingModalOpen(true); 
-      // دقت کن: اینجا setViewingRequest(null) را برداشتم تا مودال جزئیات بسته نشود 
-      // مگر اینکه خودت بخواهی بسته شود.
-    }}
-  />
-)}
+      {viewingRequest && (
+        <RequestDetailModal
+          request={viewingRequest}
+          onClose={() => setViewingRequest(null)}
+          onAction={(message) => handleRequestAction(viewingRequest.id, message)}
+          onOpenMeeting={() => {
+            setIsMeetingModalOpen(true);
+            // دقت کن: اینجا setViewingRequest(null) را برداشتم تا مودال جزئیات بسته نشود 
+            // مگر اینکه خودت بخواهی بسته شود.
+          }}
+        />
+      )}
 
-{isMeetingModalOpen && (
-  <AddMeetingModal 
-    isOpen={isMeetingModalOpen} // این خط حیاتی بود که در کد شما خالی بود!
-    onClose={() => {
-      setIsMeetingModalOpen(false);
-      // اختیاری: اگر می‌خواهی بعد از ذخیره جلسه، درخواست از لیست حذف شود:
-      setRequests(prev => prev.filter(req => req.id !== viewingRequest?.id));
-      setViewingRequest(null);
-    }} 
-    initialData={{ title: viewingRequest?.name ? `جلسه با ${viewingRequest.name}` : "" }}
-  />
-)}
+      {isMeetingModalOpen && (
+        <AddMeetingModal
+          isOpen={isMeetingModalOpen} // این خط حیاتی بود که در کد شما خالی بود!
+          onClose={() => {
+            setIsMeetingModalOpen(false);
+            // اختیاری: اگر می‌خواهی بعد از ذخیره جلسه، درخواست از لیست حذف شود:
+            setRequests(prev => prev.filter(req => req.id !== viewingRequest?.id));
+            setViewingRequest(null);
+          }}
+          initialData={{ title: viewingRequest?.name ? `جلسه با ${viewingRequest.name}` : "" }}
+        />
+      )}
     </header>
   );
 }
