@@ -18,6 +18,7 @@ import MyTasks from './MyTasks/MyTask';
 import TaskAssigned from './TaskAssigned/TaskAssigned';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
+import { useRequest } from './Services/RequestContext';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -43,6 +44,7 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
     closeProfileModal,
     updateCurrentUser
   } = useUser();
+  const { createRequest } = useRequest();
 
   return (
     <div className="w-full h-screen flex flex-col bg-[#f8fafc] overflow-hidden" dir="rtl">
@@ -80,7 +82,26 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
 
       {/* مودال‌ها مستقیماً اینجا رندر می‌شوند و بالاتر از سایدبار قرار می‌گیرند */}
       {activeModal === 'meeting' && <AddMeetingModal isOpen={true} onClose={() => setActiveModal(null)} />}
-      {activeModal === 'request' && <AddRequestModal onClose={() => setActiveModal(null)} />}
+      {activeModal === 'request' && (
+        <AddRequestModal onClose={() => setActiveModal(null)} onAdd={async (form) => {
+          try {
+            const payload = {
+              title: form.title,
+              content: form.description,
+              status: 1,
+              senderUserId: 1,
+              currentOwnerUserId: (form.people && form.people[0] && form.people[0].id) || 1,
+              tagIds: []
+            };
+            await createRequest(payload);
+            setActiveModal(null);
+            window.alert('درخواست با موفقیت ساخته شد.');
+          } catch (e) {
+            console.error(e);
+            window.alert('خطا در ایجاد درخواست');
+          }
+        }} />
+      )}
       {activeModal === 'task' && <AddTaskComponent onClose={() => setActiveModal(null)} />}
 
       <ProfileModal

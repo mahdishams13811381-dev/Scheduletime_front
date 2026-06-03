@@ -112,11 +112,12 @@
 
 // export default RequestPage;
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom'; // اضافه شد
 import RequestRow from './Components/RequestRow';
 import AddRequestModal from './../Home/Components/AddRequestModal';
+import { useRequest } from '../Services/RequestContext';
 
 const RequestPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,40 +130,34 @@ const RequestPage = () => {
     "ارجاعات": { border: "border-blue-500", text: "text-slate-900", badge: "bg-blue-100 text-blue-700" }
   };
 
-  const [data, setData] = useState(() => {
-  const saved = localStorage.getItem('myAppData');
-  if (saved) return JSON.parse(saved);
-  
-  // دیتای پیش‌فرض اگر در لوکال نبود
-  const initialData = {
-    "تایید شده": [{ id: "1", name: "علی رضایی", avatar: "https://i.pravatar.cc/40?img=1", description: "توضیحات: لورم ایپسوم متن ساختگی.", date: "۱۴۰۵/۰۱/۲۰" }],
-    "تایید نشده": [],
-    "در انتظار": [],
+  const { grouped, createRequest } = useRequest();
+
+  const data = useMemo(() => ({
+    "تایید شده": (grouped.approved || []).map(r => ({ id: r.id.toString(), ...r })),
+    "تایید نشده": (grouped.rejected || []).map(r => ({ id: r.id.toString(), ...r })),
+    "در انتظار": (grouped.pending || []).map(r => ({ id: r.id.toString(), ...r })),
     "ارجاعات": []
+  }), [grouped]);
+
+  const handleAddRequest = async (newRequest) => {
+    try {
+      const payload = {
+        title: newRequest.title,
+        content: newRequest.description,
+        status: 1,
+        senderUserId: 1,
+        currentOwnerUserId: (newRequest.people && newRequest.people[0] && newRequest.people[0].id) || 1,
+        tagIds: []
+      };
+      await createRequest(payload);
+      setIsModalOpen(false);
+    } catch (e) {
+      console.error(e);
+      window.alert('خطا در ایجاد درخواست');
+    }
   };
-  
-  localStorage.setItem('myAppData', JSON.stringify(initialData)); // ذخیره اولیه
-  return initialData;
-});
-const handleAddRequest = (newRequest) => {
-  const updatedData = {
-    ...data,
-    "تایید شده": [...data["تایید شده"], { ...newRequest, id: Date.now().toString() }]
-  };
-  
-  setData(updatedData);
-  // این خط کلید حل مشکل شماست:
-  localStorage.setItem('myAppData', JSON.stringify(updatedData)); 
-  
-  setIsModalOpen(false);
-};
   const onDragEnd = (result) => {
-    const { source, destination } = result;
-    if (!destination) return;
-    const newData = { ...data };
-    const [movedItem] = newData[source.droppableId].splice(source.index, 1);
-    newData[destination.droppableId].splice(destination.index, 0, movedItem);
-    setData(newData);
+    // client-side drag only; not persisted to backend in this iteration
   };
 
   const tabs = ["همه درخواست‌ها", "ارجاعات", "در انتظار", "تایید نشده", "تایید شده"];

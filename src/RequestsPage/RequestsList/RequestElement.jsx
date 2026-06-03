@@ -4,12 +4,21 @@ import { FiEdit2, FiTrash2, FiFileText } from "react-icons/fi";
 const RequestElement = ({ title, description, date, time, status, onEdit, onView }) => {
   
   const getStatusStyle = (status) => {
-    switch (status) {
-      case 'تایید شده': return 'bg-emerald-100 text-emerald-700';
-      case 'تایید نشده': return 'bg-rose-100 text-rose-700';
-      case 'در انتظار': return 'bg-amber-100 text-amber-700';
-      case 'ارجاعات': return 'bg-sky-100 text-sky-700';
-      default: return 'bg-slate-100 text-slate-700';
+    // Accept both Persian status strings and backend enum strings like 'PendingApproval'
+    switch ((status || '').toString()) {
+      case 'تایید شده':
+      case 'Approved':
+        return 'bg-emerald-100 text-emerald-700';
+      case 'تایید نشده':
+      case 'Rejected':
+        return 'bg-rose-100 text-rose-700';
+      case 'در انتظار':
+      case 'PendingApproval':
+        return 'bg-amber-100 text-amber-700';
+      case 'ارجاعات':
+        return 'bg-sky-100 text-sky-700';
+      default:
+        return 'bg-slate-100 text-slate-700';
     }
   };
 

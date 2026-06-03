@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { RequestProvider } from './Services/RequestContext';
 import reportWebVitals from './reportWebVitals';
 
 document.title = 'داشبورد دانشگاه اصفهان';
@@ -9,7 +10,9 @@ document.title = 'داشبورد دانشگاه اصفهان';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <RequestProvider>
+      <App />
+    </RequestProvider>
   </React.StrictMode>
 );
 

@@ -57,128 +57,134 @@
 // };
 
 // export default RequestList;
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
 import AddRequestModal from '../../Home/Components/AddRequestModal';
 import RequestElement from './RequestElement';
-import RequestDetailsModal from './RequestDetailModal';
 import RequestDetailModal from './RequestDetailModal';
+import { useRequest } from '../../Services/RequestContext';
+
 const RequestList = () => {
-  const [searchParams] = useSearchParams();
-  const statusFilter = searchParams.get("status");
-  
+  const { grouped, createRequest } = useRequest();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState(null);
-  const [requests, setRequests] = useState([]);
-  const [viewingRequest, setViewingRequest] = useState(null); // استیت برای مودال گزارش
+  const [viewingRequest, setViewingRequest] = useState(null);
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('myAppData');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        let allItems = [];
-        Object.keys(parsedData).forEach(statusKey => {
-          const items = parsedData[statusKey];
-          if (Array.isArray(items)) {
-            items.forEach(item => {
-              allItems.push({ ...item, status: statusKey });
-            });
-          }
-        });
-        setRequests(allItems);
-      } catch (e) {
-        console.error("خطا در خواندن داده‌ها:", e);
-      }
-    }
-  }, []);
-
-  const filteredRequests = statusFilter 
-    ? requests.filter(r => r.status.trim() === statusFilter.trim()) 
-    : requests;
-
-  const handleEdit = (req) => {
-    setEditingRequest(req);
-    setIsModalOpen(true);
-  };
-  const handleUpdateStatus = (requestId, newStepDetail) => {
-  const updatedRequests = requests.map(req => {
-    if (req.id === requestId) {
-      return {
-        ...req,
-        history: [
-          ...req.history, // نگهداری سوابق قبلی
-          { 
-            step: "به‌روزرسانی", 
-            date: new Date().toLocaleDateString('fa-IR'), 
-            user: "ادمین", 
-            detail: newStepDetail 
-          }
-        ]
+  const handleAdd = async (form) => {
+    try {
+      const payload = {
+        title: form.title,
+        content: form.description,
+        status: 1,
+        senderUserId: 1,
+        currentOwnerUserId: (form.people && form.people[0] && form.people[0].id) || 1,
+        tagIds: []
       };
+      await createRequest(payload);
+      window.alert('درخواست با موفقیت ساخته شد.');
+      setIsModalOpen(false);
+    } catch (e) {
+      console.error(e);
+      window.alert('خطا در ایجاد درخواست');
     }
-    return req;
+  };
+
+  const mapToRowProps = (r) => ({
+    id: r.id,
+    title: r.title,
+    description: r.content,
+    date: new Date(r.createdAt).toLocaleDateString('fa-IR'),
+    time: '',
+    status: r.status,
+    onEdit: () => { setEditingRequest(r); setIsModalOpen(true); },
+    onView: () => setViewingRequest(r)
   });
-  setRequests(updatedRequests);
-  // اینجا باید updatedRequests را دوباره در localStorage ذخیره کنید
-};
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen" dir="rtl">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-xl font-bold text-slate-800">
-          لیست درخواست‌ها {statusFilter && <span className="text-indigo-600">({statusFilter})</span>}
-        </h1>
-        <button 
-          onClick={() => { setEditingRequest(null); setIsModalOpen(true); }}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-700 transition-all"
-        >
-          + افزودن
-        </button>
+        <h1 className="text-xl font-bold text-slate-800">لیست درخواست‌ها</h1>
+        <button onClick={() => { setEditingRequest(null); setIsModalOpen(true); }} className="bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-700 transition-all">+ افزودن</button>
       </div>
 
-      <table className="w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-        <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
-          <tr>
-            <th className="p-4">ساعت</th>
-            <th className="p-4">تاریخ</th>
-            <th className="p-4">عنوان</th>
-            <th className="p-4">توضیحات</th>
-            <th className="p-4">وضعیت</th>
-            <th className="p-4">عملیات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredRequests.map((req) => (
-  <RequestElement 
-  key={req.id} 
-  {...req} 
-  onEdit={() => handleEdit(req)} 
-  onView={() => {
-     console.log("آیکون برگه کلیک شد! دیتای ریکوئست این است:", req);
-     setViewingRequest(req); // این خط باید مودال را باز کند
-  }} 
-/>
-))}
-        </tbody>
-      </table>
+      {/* Pending Approval */}
+      <section className="mb-6">
+        <h2 className="text-lg font-bold mb-2">در انتظار تایید</h2>
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+              <tr>
+                <th className="p-4">ساعت</th>
+                <th className="p-4">تاریخ</th>
+                <th className="p-4">عنوان</th>
+                <th className="p-4">توضیحات</th>
+                <th className="p-4">وضعیت</th>
+                <th className="p-4">عملیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(grouped.pending || []).map(r => (
+                <RequestElement key={r.id} {...mapToRowProps(r)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      {/* مودال ویرایش */}
+      {/* Approved */}
+      <section className="mb-6">
+        <h2 className="text-lg font-bold mb-2">تایید شده</h2>
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+              <tr>
+                <th className="p-4">ساعت</th>
+                <th className="p-4">تاریخ</th>
+                <th className="p-4">عنوان</th>
+                <th className="p-4">توضیحات</th>
+                <th className="p-4">وضعیت</th>
+                <th className="p-4">عملیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(grouped.approved || []).map(r => (
+                <RequestElement key={r.id} {...mapToRowProps(r)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Rejected */}
+      <section className="mb-6">
+        <h2 className="text-lg font-bold mb-2">رد شده</h2>
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+              <tr>
+                <th className="p-4">ساعت</th>
+                <th className="p-4">تاریخ</th>
+                <th className="p-4">عنوان</th>
+                <th className="p-4">توضیحات</th>
+                <th className="p-4">وضعیت</th>
+                <th className="p-4">عملیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(grouped.rejected || []).map(r => (
+                <RequestElement key={r.id} {...mapToRowProps(r)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {isModalOpen && (
-        <AddRequestModal 
-          requestData={editingRequest}
-          onClose={() => { setIsModalOpen(false); setEditingRequest(null); }} 
-          onAdd={(data) => { console.log("ثبت شد:", data); setIsModalOpen(false); }} 
-        />
+        <AddRequestModal requestData={editingRequest} onClose={() => { setIsModalOpen(false); setEditingRequest(null); }} onAdd={handleAdd} />
       )}
 
-      {/* مودال گزارش */}
       {viewingRequest && (
-  <RequestDetailModal
-    requestData={viewingRequest} 
-    onClose={() => setViewingRequest(null)} 
-  />
-)}
+        <RequestDetailModal requestData={viewingRequest} onClose={() => setViewingRequest(null)} />
+      )}
     </div>
   );
 };

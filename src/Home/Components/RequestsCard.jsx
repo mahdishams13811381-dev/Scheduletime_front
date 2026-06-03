@@ -1,17 +1,46 @@
 import React, { useState } from "react";
 import RequestItem from "./RequestItem";
 import AddRequestModal from "./AddRequestModal";
+import { useRequest } from "../../Services/RequestContext";
 
 const RequestsCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const requestsData = [
-    { id: 1, name: "نام و نام خانوادگی", date: "۱۴۰۵/۰۱/۲۰", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", status: "approved", avatarUrl: "" },
-    { id: 2, name: "نام و نام خانوادگی", date: "۱۴۰۵/۰۱/۲۵", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", status: "pending", avatarUrl: "" },
-    { id: 3, name: "نام و نام خانوادگی", date: "۱۴۰۵/۰۱/۲۵", description: "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.", status: "rejected", avatarUrl: "" },
-    { id: 4, name: "کاربر تستی جدید ۴", date: "۱۴۰۵/۰۱/۲۸", description: "این یک متن آزمایشی برای بررسی درست کار کردن اسکرول مانیتورینگ است.", status: "pending", avatarUrl: "" },
-    { id: 5, name: "کاربر تستی جدید ۵", date: "۱۴۰۵/۰۱/۲۸", description: "این یک متن آزمایشی برای بررسی درست کار کردن اسکرول مانیتورینگ است.", status: "pending", avatarUrl: "" },
-    { id: 6, name: "کاربر تستی جدید ۶", date: "۱۴۰۵/۰۱/۲۸", description: "این یک متن آزمایشی برای بررسی درست کار کردن اسکرول مانیتورینگ است.", status: "pending", avatarUrl: "" }
-  ];
+  const { inbox, createRequest } = useRequest();
+
+  const requestsData = inbox.map(r => ({
+    id: r.id,
+    name: `${r.senderUser.firstName} ${r.senderUser.lastName}`.trim(),
+    date: new Date(r.createdAt).toLocaleDateString('fa-IR'),
+    description: r.content,
+    status: mapStatus(r.status),
+    avatarUrl: r.senderUser.profileImageUrl || ''
+  }));
+
+  function mapStatus(status) {
+    if (!status) return 'pending';
+    if (status.toLowerCase().includes('approved')) return 'approved';
+    if (status.toLowerCase().includes('rejected')) return 'rejected';
+    return 'pending';
+  }
+
+  const handleAdd = async (form) => {
+    try {
+      const payload = {
+        title: form.title,
+        content: form.description,
+        status: 1, // PendingApproval
+        senderUserId: 1,
+        currentOwnerUserId: (form.people && form.people[0] && form.people[0].id) || 1,
+        tagIds: []
+      };
+      await createRequest(payload);
+      window.alert('درخواست با موفقیت ساخته شد.');
+      setIsModalOpen(false);
+    } catch (e) {
+      console.error(e);
+      window.alert('خطا در ایجاد درخواست');
+    }
+  } 
 
   return (
     <div className="bg-white p-4 md:p-6 rounded-3xl border border-slate-900/10 shadow-[0_0_25px_rgba(15,23,42,0.22)] flex flex-col h-[400px] md:h-full min-h-0 transition-all duration-300 hover:shadow-[0_0_35px_rgba(15,23,42,0.35)] ring-2 ring-blue-500/50" dir="rtl">
@@ -47,7 +76,7 @@ const RequestsCard = () => {
         </div>
       </div>
 
-      {isModalOpen && <AddRequestModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && <AddRequestModal onClose={() => setIsModalOpen(false)} onAdd={handleAdd} />}
 
     </div>
   );
