@@ -19,42 +19,54 @@ const MeetingPage = () => {
 
   const tabs = ["همه جلسات", "سایر جلسات", "جلسات آنلاین", "جلسات حضوری خارج دانشگاه", "جلسات حضوری داخل دانشگاه"];
 
-  const [data, setData] = useState(() => {
-    return {
-      "جلسات حضوری داخل دانشگاه": [],
-      "جلسات حضوری خارج دانشگاه": [],
-      "جلسات آنلاین": [],
-      "سایر جلسات": []
+  const categoryKeys = [
+    "جلسات حضوری داخل دانشگاه",
+    "جلسات حضوری خارج دانشگاه",
+    "جلسات آنلاین",
+    "سایر جلسات"
+  ];
+
+  const normalizeGrouped = (groupedData) => {
+    const emptyMap = categoryKeys.reduce((acc, key) => ({ ...acc, [key]: [] }), {});
+
+    if (!groupedData || typeof groupedData !== 'object') return emptyMap;
+
+    const isCategoryShape = categoryKeys.some(key => Array.isArray(groupedData[key]));
+    if (isCategoryShape) {
+      return categoryKeys.reduce((acc, key) => ({ ...acc, [key]: Array.isArray(groupedData[key]) ? groupedData[key] : [] }), {});
+    }
+
+    const normalized = { ...emptyMap };
+    const addTo = (meeting) => {
+      const type = (meeting?.type || '').toLowerCase();
+      if (type === 'online') normalized['جلسات آنلاین'].push(meeting);
+      else if (type === 'internaluniversity') normalized['جلسات حضوری داخل دانشگاه'].push(meeting);
+      else if (type === 'externaluniversity') normalized['جلسات حضوری خارج دانشگاه'].push(meeting);
+      else normalized['سایر جلسات'].push(meeting);
     };
-  });
+
+    ['pending', 'held', 'rejected'].forEach((status) => {
+      const statusObj = groupedData[status] || {};
+      Object.values(statusObj).forEach((arr) => (Array.isArray(arr) ? arr.forEach(addTo) : null));
+    });
+
+    return normalized;
+  };
+
+  const [data, setData] = useState(() => ({
+    "جلسات حضوری داخل دانشگاه": [],
+    "جلسات حضوری خارج دانشگاه": [],
+    "جلسات آنلاین": [],
+    "سایر جلسات": []
+  }));
+  console.log('🚀 ~ file: MeetingPage.jsx:50 ~ MeetingPage ~ data:', data);
 
   // ذخیره در localStorage با هر تغییر در data
   const { grouped, loadGrouped } = useMeeting();
 
   useEffect(() => {
-    // map grouped data into Persian column keys
     if (!grouped) return;
-    const map = {
-      "جلسات حضوری داخل دانشگاه": [],
-      "جلسات حضوری خارج دانشگاه": [],
-      "جلسات آنلاین": [],
-      "سایر جلسات": []
-    };
-
-    const addTo = (meeting) => {
-      const type = (meeting.type || '').toLowerCase();
-      if (type === 'online') map['جلسات آنلاین'].push(meeting);
-      else if (type === 'internaluniversity') map['جلسات حضوری داخل دانشگاه'].push(meeting);
-      else if (type === 'externaluniversity') map['جلسات حضوری خارج دانشگاه'].push(meeting);
-      else map['سایر جلسات'].push(meeting);
-    };
-
-    ['pending','held','rejected'].forEach(s => {
-      const statusObj = grouped[s] || {};
-      Object.values(statusObj).forEach(arr => (arr || []).forEach(addTo));
-    });
-
-    setData(map);
+    setData(normalizeGrouped(grouped));
   }, [grouped]);
 
   const handleAddMeeting = (newRequest) => {
@@ -124,7 +136,7 @@ const MeetingPage = () => {
                   </div>
                   
                   {data[columnName]?.map((item, index) => (
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                    <Draggable key={`${columnName}-${item.id}`} draggableId={String(item.id)} index={index}>
                       {(provided) => (
                         <div 
                           ref={provided.innerRef} 
