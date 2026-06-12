@@ -16,7 +16,7 @@ const SideBar = ({ isOpen, onClose }) => {
     isLoadingUser,
     openProfileModal
   } = useUser();
-  
+
   const handleOpenModal = (e, modalType) => {
     e.stopPropagation();
     e.preventDefault();
@@ -26,9 +26,9 @@ const SideBar = ({ isOpen, onClose }) => {
   return (
     <>
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-[9998] md:hidden" 
-          onClick={onClose} 
+        <div
+          className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
+          onClick={onClose}
         />
       )}
 
@@ -50,62 +50,72 @@ const SideBar = ({ isOpen, onClose }) => {
               <p className="text-xs text-slate-500 mt-1">{isLoadingUser ? '...' : getUserPosition(currentUser)}</p>
             </div>
 
-           <ul className="space-y-1"> 
-  <li>
-    <Link to="/" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
-      <FaHome /> صفحه اصلی
-    </Link>
-  </li>
-  <li>
-    <Link to="/mycalendar" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
-      <FaCalendarAlt /> تقویم
-    </Link>
-  </li>
-            
-  <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
-    <Link to="/meetings" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
-      <FaUsers /> جلسات
-    </Link>
-    <button onClick={(e) => handleOpenModal(e, 'meeting')} className="p-1 hover:text-indigo-600">
-      <FaPlus />
-    </button>
-  </li>
+            <ul className="space-y-1">
+              <li>
+                <Link to="/" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
+                  <FaHome /> صفحه اصلی
+                </Link>
+              </li>
+              <li>
+                <Link to="/mycalendar" onClick={onClose} className="flex items-center gap-3 p-3 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors">
+                  <FaCalendarAlt /> تقویم
+                </Link>
+              </li>
 
-  <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
-    <Link to="/requests" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
-      <FaFileAlt /> درخواست‌ها
-    </Link>
-    <button onClick={(e) => handleOpenModal(e, 'request')} className="p-1 hover:text-indigo-600">
-      <FaPlus />
-    </button>
-  </li>
+              <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
+                <Link to="/meetings" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
+                  <FaUsers /> جلسات
+                </Link>
+                <button onClick={(e) => handleOpenModal(e, 'meeting')} className="p-1 hover:text-indigo-600">
+                  <FaPlus />
+                </button>
+              </li>
 
-  <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
-    <Link to="/mytasks" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
-      <FaRegFileAlt /> کارهای من
-    </Link>
-    <button onClick={() => setTaskModalConfig({ isOpen: true, forcedAssignee: 'خودم' })} className="p-1 hover:text-indigo-600">
-      <FaPlus />
-    </button>
-  </li>
+              <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
+                <Link to="/requests" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
+                  <FaFileAlt /> درخواست‌ها
+                </Link>
+                <button onClick={(e) => handleOpenModal(e, 'request')} className="p-1 hover:text-indigo-600">
+                  <FaPlus />
+                </button>
+              </li>
 
-  <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
-    <Link to="/taskassigned" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
-      <FaRegFileAlt /> کارهای محوله
-    </Link>
-    <button onClick={() => setTaskModalConfig({ isOpen: true, forcedAssignee: 'دیگران' })} className="p-1 hover:text-indigo-600">
-      <FaPlus />
-    </button>
-  </li>
-</ul>
+              <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
+                <Link to="/mytasks" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
+                  <FaRegFileAlt /> کارهای من
+                </Link>
+                <button onClick={() => setTaskModalConfig({ isOpen: true, forcedAssignee: 'خودم' })} className="p-1 hover:text-indigo-600">
+                  <FaPlus />
+                </button>
+              </li>
+
+              <li className="flex justify-between items-center px-3 py-1 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors">
+                <Link to="/taskassigned" onClick={onClose} className="flex-1 flex items-center gap-3 py-2 text-slate-700">
+                  <FaRegFileAlt /> کارهای محوله
+                </Link>
+                <button onClick={() => setTaskModalConfig({ isOpen: true, forcedAssignee: 'دیگران' })} className="p-1 hover:text-indigo-600">
+                  <FaPlus />
+                </button>
+              </li>
+            </ul>
           </div>
 
           <div className="p-4 border-t border-gray-200 bg-white">
             <button onClick={openProfileModal} className="w-full p-2 mb-2 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors">
               <FaEdit /> ویرایش پروفایل
             </button>
-            <button className="w-full p-2 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors">
-              <FaSignOutAlt /> خروج
+            <button
+              onClick={() => {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                localStorage.removeItem("user");
+
+                window.location.href = "/login";
+              }}
+              className="w-full p-2 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors"
+            >
+              <FaSignOutAlt />
+              خروج
             </button>
           </div>
         </div>
@@ -115,14 +125,14 @@ const SideBar = ({ isOpen, onClose }) => {
       {activeModal === 'request' && <AddRequestModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'task' && <AddTaskComponent onClose={() => setActiveModal(null)} />}
       {taskModalConfig.isOpen && (
-  <AddTaskComponent 
-    onClose={() => setTaskModalConfig({ isOpen: false, forcedAssignee: null })} 
-    forcedAssignee={taskModalConfig.forcedAssignee} 
-  />
-)}
+        <AddTaskComponent
+          onClose={() => setTaskModalConfig({ isOpen: false, forcedAssignee: null })}
+          forcedAssignee={taskModalConfig.forcedAssignee}
+        />
+      )}
     </>
-    
-);
+
+  );
 };
 
 export default SideBar;

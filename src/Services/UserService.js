@@ -3,7 +3,25 @@ class UserService {
     this.currentUserCache = null;
     this.currentUserPromise = null;
   }
+  getCurrentUserId() {
+    const token = localStorage.getItem("accessToken");
 
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const payload = JSON.parse(
+        atob(token.split(".")[1])
+      );
+
+      return payload[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ];
+    } catch {
+      return null;
+    }
+  }
   async getCurrentUser({ forceRefresh = false } = {}) {
     if (!forceRefresh && this.currentUserCache) {
       return this.currentUserCache;
@@ -13,7 +31,13 @@ class UserService {
       return this.currentUserPromise;
     }
 
-    this.currentUserPromise = this.getUserById(1)
+    const userId = this.getCurrentUserId();
+
+    if (!userId) {
+      throw new Error("User is not authenticated");
+    }
+
+    this.currentUserPromise = this.getUserById(userId)
       .then((user) => {
         this.currentUserCache = user;
         return user;

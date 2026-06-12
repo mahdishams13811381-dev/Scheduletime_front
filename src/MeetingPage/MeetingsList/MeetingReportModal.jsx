@@ -56,7 +56,7 @@
 // export default MeetingReportModal;
 import React, { useState } from "react";
 import { FiDownload, FiTrash2, FiUpload, FiX } from "react-icons/fi";
-import RequestRow from "../RequestsPage/Components/RequestRow";
+import RequestRow from "../../RequestsPage/Components/RequestRow";
 
 const MeetingReportModal = ({ isOpen, onClose, meeting }) => {
   const [file, setFile] = useState(meeting?.reportFile || "صورت_جلسه_نمونه.pdf");

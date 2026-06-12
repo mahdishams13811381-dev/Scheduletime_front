@@ -1,8 +1,27 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import RequestService from './RequestService';
 
-const CURRENT_USER_ID = 1;
+const getCurrentUserId = () => {
+  const token = localStorage.getItem("accessToken");
 
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1])
+    );
+
+    return Number(
+      payload[
+      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ]
+    );
+  } catch {
+    return null;
+  }
+};
+
+const CURRENT_USER_ID = getCurrentUserId();
 const RequestContext = createContext(null);
 
 export const useRequest = () => useContext(RequestContext);

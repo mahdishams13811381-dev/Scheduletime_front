@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate
+} from 'react-router-dom';
 import React, { useState } from "react";
 import { Toaster } from 'react-hot-toast';
 import './App.css';
@@ -42,6 +48,7 @@ function App() {
 }
 
 function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
+   const token = localStorage.getItem("accessToken");
   const [activeModal, setActiveModal] = useState(null);
   const location = useLocation();
 
@@ -86,15 +93,84 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
 
         <div className="flex-1 h-full overflow-y-auto">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/requests" element={<RequestsPage />} />
-            <Route path="/requestsList" element={<RequestsList />} />
-            <Route path="/meetings" element={<MeetingPage />} />
-            <Route path="/meetingsList" element={<MeetingsList />} />
-            <Route path="/mytasks" element={<MyTasks />} />
-            <Route path="/taskassigned" element={<TaskAssigned />} />
-            <Route path="/mycalendar" element={<MyCalendar />} />
-            <Route path="/login" element={<LoginPage />} />
+
+            <Route
+              path="/login"
+              element={<LoginPage />}
+            />
+
+            <Route
+              path="/"
+              element={
+                token
+                  ? <Home />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/requests"
+              element={
+                token
+                  ? <RequestsPage />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/requestsList"
+              element={
+                token
+                  ? <RequestsList />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/meetings"
+              element={
+                token
+                  ? <MeetingPage />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/meetingsList"
+              element={
+                token
+                  ? <MeetingsList />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/mytasks"
+              element={
+                token
+                  ? <MyTasks />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/taskassigned"
+              element={
+                token
+                  ? <TaskAssigned />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
+            <Route
+              path="/mycalendar"
+              element={
+                token
+                  ? <MyCalendar />
+                  : <Navigate to="/login" replace />
+              }
+            />
+
           </Routes>
         </div>
       </div>

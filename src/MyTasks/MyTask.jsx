@@ -4,8 +4,27 @@ import AddTaskComponent from '../Home/Components/AddTaskComponent';
 import TaskService from '../Services/TaskService';
 
 const MyTasks = () => {
-  const CURRENT_USER_ID = 1;
-  
+const getCurrentUserId = () => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1])
+    );
+
+    return Number(
+      payload[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ]
+    );
+  } catch {
+    return null;
+  }
+};
+
+const CURRENT_USER_ID = getCurrentUserId();  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

@@ -5,8 +5,27 @@ import EditTaskModal from "./EditTaskModal";
 import TaskService from "../../Services/TaskService";
 
 const MyTasksCard = () => {
-  const CURRENT_USER_ID = 1;
-  
+const getCurrentUserId = () => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1])
+    );
+
+    return Number(
+      payload[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ]
+    );
+  } catch {
+    return null;
+  }
+};
+
+const CURRENT_USER_ID = getCurrentUserId();  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
