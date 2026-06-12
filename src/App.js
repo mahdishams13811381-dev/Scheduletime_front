@@ -16,7 +16,7 @@ import ProfileModal from './Layout/Components/ProfileModal';
 import RequestsList from "./RequestsPage/RequestsList/RequestsList";
 import MeetingPage from "./MeetingPage/MeetingPage";
 import LoginPage from "./Login/Login";
-import MeetingsList from "./MeetingsList/MeetingsList";
+import MeetingsList from "./MeetingPage/MeetingsList/MeetingsList";
 import SecondSideBar from "./Second_SideBar/Second_SideBar";
 import AddMeetingModal from './Home/Components/AddMeetingModal';
 import AddRequestModal from './Home/Components/AddRequestModal';
