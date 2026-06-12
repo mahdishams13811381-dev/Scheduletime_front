@@ -21,13 +21,14 @@ import SecondSideBar from "./Second_SideBar/Second_SideBar";
 import AddMeetingModal from './Home/Components/AddMeetingModal';
 import AddRequestModal from './Home/Components/AddRequestModal';
 import AddTaskComponent from './Home/Components/AddTaskComponent';
-import MyTasks from './MyTasks/MyTask';
 import TaskAssigned from './TaskAssigned/TaskAssigned';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
 import { useRequest } from './Services/RequestContext';
 import { MeetingProvider } from './Services/MeetingContext';
 import { CalendarProvider } from './Services/CalendarContext';
+import TaskPage from './TaskPage/TaskPage';
+import TaskList from './TaskPage/TaskList/TaskList';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -148,7 +149,15 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
               path="/mytasks"
               element={
                 token
-                  ? <MyTasks />
+                  ? <TaskPage />
+                  : <Navigate to="/login" replace />
+              }
+            />
+              <Route
+              path="/tasksList"
+              element={
+                token
+                  ? <TaskList />
                   : <Navigate to="/login" replace />
               }
             />
