@@ -80,7 +80,7 @@ const Second_SideBar = () => {
         
         <div className="border-t border-gray-100 my-6"></div>
         
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h3 className="text-sm font-bold text-slate-800 mb-4">فیلتر نمایش</h3>
             <Link to="/meetings" className="text-[10px] text-indigo-700 font-bold whitespace-nowrap text-center mt-2">
 
@@ -114,7 +114,7 @@ const Second_SideBar = () => {
             onClick={() => setSelectedFilter('کارهای محوله')} 
           />
           </Link>
-        </div>
+        </div> */}
       </div>
       
     </div>

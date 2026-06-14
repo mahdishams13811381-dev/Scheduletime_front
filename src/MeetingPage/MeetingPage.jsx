@@ -124,7 +124,7 @@ const MeetingPage = () => {
                 <div 
                   {...provided.droppableProps} 
                   ref={provided.innerRef} 
-                  className="flex flex-col min-h-[500px]"
+                  className="flex flex-col md:min-h-[500px]"
                 >
                   <div className={`flex justify-between items-center mb-4 pb-2 border-b-2 ${columnConfig[columnName].border}`}>
                     <Link to={`/meetingsList?status=${columnName}`} className={`font-bold text-lg ${columnConfig[columnName].text}`}>

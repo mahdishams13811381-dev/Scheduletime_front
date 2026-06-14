@@ -28,47 +28,49 @@ const MonthlyView = ({ events = [], selectedDate, onEventClick }) => {
   }, {});
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
-      <div className="grid grid-cols-7 gap-2 mb-4">
-        {daysOfWeek.map((day) => (
-          <div key={day} className="text-center text-sm font-bold text-slate-400 py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-2">
-        {dayCells.map((date, index) => {
-          if (date === null) {
-            return <div key={`empty-${index}`} className="h-32 border border-slate-100 rounded-xl bg-slate-50/20"></div>;
-          }
-
-          const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-          const dayEvents = eventsByDay[key] || [];
-          const shortDate = date.toLocaleDateString('fa-IR-u-ca-persian', { day: '2-digit' });
-
-          return (
-            <div
-              key={key}
-              className="h-32 border border-slate-100 rounded-xl p-2 bg-slate-50/30 flex flex-col gap-2 transition-all hover:bg-slate-50 cursor-pointer"
-              onClick={() => onEventClick?.(date)}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-slate-400">{shortDate}</span>
-                {dayEvents.length > 0 && (
-                  <span className="text-[10px] font-bold text-slate-700 bg-white/80 px-2 py-0.5 rounded-full">
-                    {dayEvents.length} مورد
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col gap-2 overflow-hidden">
-                {dayEvents.slice(0, 2).map((event) => (
-                  <MonthlyViewItem key={`${event.type || event.Type}-${event.id || event.Id}`} meeting={event} />
-                ))}
-              </div>
+    <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 p-3 md:p-6 overflow-x-auto">
+      <div className="min-w-[900px]">
+        <div className="grid grid-cols-7 gap-2 mb-4">
+          {daysOfWeek.map((day) => (
+            <div key={day} className="text-center text-sm font-bold text-slate-400 py-2">
+              {day}
             </div>
-          );
-        })}
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-2">
+          {dayCells.map((date, index) => {
+            if (date === null) {
+              return <div key={`empty-${index}`} className="h-32 border border-slate-100 rounded-xl bg-slate-50/20"></div>;
+            }
+
+            const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+            const dayEvents = eventsByDay[key] || [];
+            const shortDate = date.toLocaleDateString('fa-IR-u-ca-persian', { day: '2-digit' });
+
+            return (
+              <div
+                key={key}
+                className="h-32 border border-slate-100 rounded-xl p-2 bg-slate-50/30 flex flex-col gap-2 transition-all hover:bg-slate-50 cursor-pointer"
+                onClick={() => onEventClick?.(date)}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-400">{shortDate}</span>
+                  {dayEvents.length > 0 && (
+                    <span className="text-[10px] font-bold text-slate-700 bg-white/80 px-2 py-0.5 rounded-full">
+                      {dayEvents.length} مورد
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 overflow-hidden">
+                  {dayEvents.slice(0, 2).map((event) => (
+                    <MonthlyViewItem key={`${event.type || event.Type}-${event.id || event.Id}`} meeting={event} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

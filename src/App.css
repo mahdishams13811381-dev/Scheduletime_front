@@ -31,11 +31,40 @@
 }
 
 /* اعمال فونت ایران سنس ایکس به کل پروژه */
-body, html, button, input, select, textarea {
+body,
+html,
+button,
+input,
+select,
+textarea {
   font-family: 'IRANSansX', sans-serif !important;
 }
 
 .calendar-large {
-  transform: scale(1.2);
+  transform: scale(0.9);
   transform-origin: top center;
+}
+
+@media (min-width: 640px) {
+  .calendar-large {
+    transform: scale(1.2);
+  }
+}
+
+.task-day {
+  background: #16a34a65 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.meeting-day {
+  background: #16a34a65 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.holiday-day {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-radius: 8px;
 }
