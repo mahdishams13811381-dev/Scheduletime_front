@@ -26,14 +26,36 @@ const ProfileModal = ({ user, isOpen, onClose, onSave, canEdit = false }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, profileImageUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file || !user?.id) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(
+        `http://localhost:5000/api/user/${user.id}/profile-image`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("خطا در آپلود تصویر");
+      }
+
+      const result = await response.json();
+
+      setFormData(prev => ({
+        ...prev,
+        profileImageUrl: result.profileImageUrl
+      }));
+    } catch (error) {
+      console.error(error);
+      alert("خطا در آپلود تصویر");
     }
   };
 
@@ -76,10 +98,10 @@ const ProfileModal = ({ user, isOpen, onClose, onSave, canEdit = false }) => {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" dir="rtl">
       <div className="bg-white w-full max-w-[500px] rounded-[24px] p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
-        
+
         {/* بخش عکس و نام */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div 
+          <div
             className="relative w-24 h-24 rounded-full overflow-hidden mb-3 border-4 border-slate-50 shadow-md group cursor-pointer"
             onClick={() => canEdit && fileInputRef.current?.click()}
           >
@@ -107,7 +129,6 @@ const ProfileModal = ({ user, isOpen, onClose, onSave, canEdit = false }) => {
               <Field label="دانشکده" name="faculty" value={formData.faculty} onChange={handleChange} />
             </div>
             <Field label="گروه / دپارتمان" name="department" value={formData.department} onChange={handleChange} />
-            <Field label="لینک تصویر" name="profileImageUrl" value={formData.profileImageUrl} onChange={handleChange} />
 
             <div className="flex flex-col gap-1">
               <label className="text-slate-400 text-xs">بیوگرافی:</label>

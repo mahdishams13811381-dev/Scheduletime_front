@@ -3,9 +3,11 @@ import "react-day-picker/dist/style.css";
 import { DayPicker, faIR } from "@daypicker/persian";
 import TaskService from "./../../Services/TaskService"
 import MeetingService from "./../../Services/MeetingService"
+import { toGregorian } from "jalaali-js";
 
 const CalendarCard = () => {
   const [selected, setSelected] = useState(new Date());
+  const [iranHolidays, setIranHolidays] = useState([]);
 
   const formatCaption = (date) => {
     return new Intl.DateTimeFormat("fa-IR", { month: "long", year: "numeric" }).format(date);
@@ -20,35 +22,78 @@ const CalendarCard = () => {
 
           if (!token) return null;
 
-          try {
-            const payload = JSON.parse(
-              atob(token.split(".")[1])
-            );
+          const payload = JSON.parse(
+            atob(token.split(".")[1])
+          );
 
-            return Number(
-              payload[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-              ]
-            );
-          } catch {
-            return null;
-          }
+          return payload[
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+          ];
         };
 
-        const tasks = await TaskService.getMyTasks(getCurrentUserId());
-        const meetings = await MeetingService.getMyMeetings(getCurrentUserId());
-        console.log("API RESULT:", meetings);
+        const UserId = getCurrentUserId();
 
-        setTaskDates(
-          tasks.map(t => new Date(t.deadline))
+        if (UserId) {
+          const tasks = await TaskService.getMyTasks(UserId);
+
+          const meetings = await MeetingService.getMyMeetings(UserId);
+
+          setTaskDates(
+            tasks.map(t => new Date(t.dueDate))
+          );
+
+          const dates = meetings.map(m => new Date(m.meetingDate));
+
+          setMeetingDates(dates);
+        }
+        const holidays = [];
+
+        const holidayResponse = await fetch(
+          "https://persian-calendar-api.sajjadth.workers.dev/?year=1405"
         );
 
-        const dates = meetings.map(m => new Date(m.meetingDate));
-        console.log("DATES:", dates);
 
-        setMeetingDates(dates);
-        console.log("SET STATE CALLED");
+        const holidayData = await holidayResponse.json();
+        holidayData.forEach(month => {
+          month.days.forEach(day => {
+            if (day.events?.isHoliday) {
+              const jalaliMonthName = month.header.jalali.split(" ")[1];
 
+              const monthMap = {
+                فروردین: 1,
+                اردیبهشت: 2,
+                خرداد: 3,
+                تیر: 4,
+                مرداد: 5,
+                شهریور: 6,
+                مهر: 7,
+                آبان: 8,
+                آذر: 9,
+                دی: 10,
+                بهمن: 11,
+                اسفند: 12,
+              };
+
+              const jalaliDay = Number(
+                day.day.jalali.replace(/[۰-۹]/g, d =>
+                  "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
+                )
+              );
+
+              const g = toGregorian(
+                1405,
+                monthMap[jalaliMonthName],
+                jalaliDay
+              );
+
+              holidays.push(
+                new Date(g.gy, g.gm - 1, g.gd)
+              );
+            }
+          });
+        });
+
+        setIranHolidays(holidays);
       } catch (err) {
         console.error(err);
       }
@@ -58,8 +103,6 @@ const CalendarCard = () => {
     loadData();
   }, []);
 
-  const iranHolidays = [
-  ];
 
   return (
     /* 🛠️ اضافه شدن min-h-0 جهت هماهنگی با انقباض گرید دسکتاپ */

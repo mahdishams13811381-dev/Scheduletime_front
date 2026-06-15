@@ -1,6 +1,6 @@
 export default function NotificationComponent({ notification, onRead, onClick }) {
   const isMeeting = (notification.ItemType || '').toLowerCase() === 'meeting';
-  const dateStr = notification.Date ? new Date(notification.Date).toLocaleString() : '';
+  const dateStr = notification.date ? new Date(notification.date).toLocaleString() : '';
 
   return (
     <div onClick={onClick} className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col gap-2 shadow-xs hover:border-indigo-100 transition-colors cursor-pointer">
@@ -25,9 +25,9 @@ export default function NotificationComponent({ notification, onRead, onClick })
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-xs font-bold text-slate-800 leading-relaxed">
-              {notification.Title}
+              {notification.title}
             </span>
-            <span className="text-[10px] text-slate-400 mt-1" dir="rtl">{notification.Status} • {dateStr}</span>
+            <span className="text-[10px] text-slate-400 mt-1" dir="rtl">{dateStr}</span>
           </div>
         </div>
       </div>
