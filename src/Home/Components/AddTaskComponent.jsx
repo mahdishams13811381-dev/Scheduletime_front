@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import TaskService from "../../Services/TaskService";
 import { userService } from "../../Services/UserService";
+import { useTask  } from "../../Services/TaskContext";
+
 const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
   const [status, setStatus] = useState("در حال انجام");
   const [title, setTitle] = useState("");
@@ -14,6 +16,7 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
   const [assigneeType, setAssigneeType] = useState(forcedAssignee || "خودم");
   const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef(null);
+  const { createTask } = useTask();
 
   const getCurrentUserId = () => {
     const token = localStorage.getItem("accessToken");
@@ -106,8 +109,8 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
         tagIds: []
       };
 
-      
-      const createdTask = await TaskService.createTask(taskModel);
+
+      const createdTask = await createTask(taskModel);
       toast.success(`تسک "${title}" با موفقیت ایجاد شد!`);
 
       // Call the callback to refresh the task list

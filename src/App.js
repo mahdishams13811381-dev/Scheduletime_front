@@ -25,32 +25,36 @@ import TaskAssigned from './TaskAssigned/TaskAssigned';
 import TaskAssignedList from './TaskAssigned/TaskAssignedList/TaskAssignedList';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
-import { useRequest } from './Services/RequestContext';
 import { MeetingProvider } from './Services/MeetingContext';
 import { CalendarProvider } from './Services/CalendarContext';
 import TaskPage from './TaskPage/TaskPage';
 import TaskList from './TaskPage/TaskList/TaskList';
-
+import { TaskProvider } from './Services/TaskContext';
+import { RequestProvider } from './Services/RequestContext';
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <UserProvider>
-      <MeetingProvider>
-        <CalendarProvider>
-          <Toaster position="top-center" reverseOrder={false} />
-          <BrowserRouter>
-            {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
-            <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-          </BrowserRouter>
-        </CalendarProvider>
-      </MeetingProvider>
+      <RequestProvider>
+      <TaskProvider>
+        <MeetingProvider>
+          <CalendarProvider>
+            <Toaster position="top-center" reverseOrder={false} />
+            <BrowserRouter>
+              {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
+              <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+            </BrowserRouter>
+          </CalendarProvider>
+        </MeetingProvider>
+      </TaskProvider>
+      </RequestProvider>
     </UserProvider>
   );
 }
 
 function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
-   const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken");
   const [activeModal, setActiveModal] = useState(null);
   const location = useLocation();
 
@@ -154,7 +158,7 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
                   : <Navigate to="/login" replace />
               }
             />
-              <Route
+            <Route
               path="/tasksList"
               element={
                 token
@@ -170,8 +174,8 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
                   ? <TaskAssigned />
                   : <Navigate to="/login" replace />
               }
-            /> 
-              <Route
+            />
+            <Route
               path="/TaskAssignedList"
               element={
                 token

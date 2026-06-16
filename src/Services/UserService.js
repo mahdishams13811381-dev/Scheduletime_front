@@ -100,7 +100,7 @@ class UserService {
     }
   }
 
-  async getAllUsers(pageNumber = 1, pageSize = 100) {
+  async getAllUsers(pageNumber = 1, pageSize = 1000) {
     const response = await fetch(
       `/api/user?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       {

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import MeetingItem from "./MeetingItem";
 import AddMeetingModal from "./AddMeetingModal"; // 🔹 ایمپورت کامپوننت جدید فرم
 import { useMeeting } from '../../Services/MeetingContext';
+import MeetingDetailsModal from "./MeetingDetailsModal";
+
 
 const MeetingsCard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

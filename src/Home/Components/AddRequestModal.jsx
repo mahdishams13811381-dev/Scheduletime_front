@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { userService } from "../../Services/UserService";
 import toast from "react-hot-toast";
 import RequestService from "../../Services/RequestService";
+import { useRequest } from "../../Services/RequestContext";
 
 const AddRequestModal = ({ onClose, onAdd, requestData }) => {
   // ۱. مقداردهی اولیه فرم - اگر requestData وجود داشت، فیلدها پر می‌شوند
@@ -17,6 +18,7 @@ const AddRequestModal = ({ onClose, onAdd, requestData }) => {
   const searchRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const { createRequest } = useRequest();
 
   useEffect(() => {
     userService.getAllUsers()
@@ -64,7 +66,7 @@ const AddRequestModal = ({ onClose, onAdd, requestData }) => {
 
     setSubmitting(true);
 
-    RequestService.createRequest(payload)
+    createRequest(payload)
       .then(() => {
         toast.success("درخواست با موفقیت ثبت شد.");
 
@@ -90,7 +92,7 @@ const AddRequestModal = ({ onClose, onAdd, requestData }) => {
           {requestData ? "ویرایش درخواست" : "ساخت درخواست جدید"}
         </h2>
 
-        <form className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
           {/* عنوان */}
           <div className="grid grid-cols-[80px_1fr] items-center gap-2">
             <label className="text-sm font-bold text-slate-800">عنوان:</label>
