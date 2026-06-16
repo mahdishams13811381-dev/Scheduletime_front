@@ -99,6 +99,19 @@ class UserService {
       return 'An unexpected API error occurred.';
     }
   }
+
+  async getAllUsers(pageNumber = 1, pageSize = 100) {
+    const response = await fetch(
+      `/api/user?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      {
+        headers: {
+          Accept: "application/json"
+        }
+      }
+    );
+
+    return this.handleJsonResponse(response);
+  }
 }
 
 export const userService = new UserService();

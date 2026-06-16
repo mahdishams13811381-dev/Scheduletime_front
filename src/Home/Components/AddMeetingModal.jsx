@@ -1,256 +1,9 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import DatePicker from "react-multi-date-picker";
-// import persian from "react-date-object/calendars/persian";
-// import persian_fa from "react-date-object/locales/persian_fa";
-
-// const AddMeetingModal = ({ isOpen, onClose , initialData }) => {
-//   const allUsers = [
-//     { id: 101, name: "دکتر احمدی", role: "استاد راهنما", avatar: "https://i.pravatar.cc/150?u=101" },
-//     { id: 102, name: "مهندس رضایی", role: "مدیر آموزش", avatar: "https://i.pravatar.cc/150?u=102" },
-//     { id: 103, name: "سارا موسوی", role: "دانشجو", avatar: "https://i.pravatar.cc/150?u=103" },
-//     { id: 104, name: "علی کریمی", role: "پژوهشگر", avatar: "https://i.pravatar.cc/150?u=104" },
-//     { id: 105, name: "دکتر حسینی", role: "رئیس دانشکده", avatar: "https://i.pravatar.cc/150?u=105" },
-//   ];
-// const [meetingTitle, setMeetingTitle] = useState(initialData?.title || "");
-//   const [startTime, setStartTime] = useState("07:00");
-//   const [endTime, setEndTime] = useState("07:30");
-//   const [selectedParticipants, setSelectedParticipants] = useState([]);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [isSearchOpen, setIsSearchOpen] = useState(false);
-//   const [isStartOpen, setIsStartOpen] = useState(false);
-//   const [isEndOpen, setIsEndOpen] = useState(false);
-//   const [timeError, setTimeError] = useState("");
-//   const searchRef = useRef(null);
-//   const startRef = useRef(null);
-//   const endRef = useRef(null);
-//   const [meetingDate, setMeetingDate] = useState(null);
-
-//   const timeSlots = [];
-//   for (let hour = 7; hour <= 23; hour++) {
-//     timeSlots.push(`${hour}:00`);
-//     timeSlots.push(`${hour}:30`);
-//   }
-//   timeSlots.push("24:00");
-
-//   useEffect(() => {
-//     function handleClickOutside(event) {
-//       const isInsideAny = [searchRef, startRef, endRef].some(
-//         (ref) => ref.current && ref.current.contains(event.target)
-//       );
-//       if (!isInsideAny) {
-//         setIsSearchOpen(false);
-//         setIsStartOpen(false);
-//         setIsEndOpen(false);
-//       }
-//     }
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-    
-//     const sIndex = timeSlots.indexOf(startTime);
-//     const eIndex = timeSlots.indexOf(endTime);
-//     if (eIndex <= sIndex) {
-//       setTimeError("زمان پایان باید بعد از زمان شروع باشد.");
-//       setIsEndOpen(true);
-//       return;
-//     }
-//     if (!meetingTitle || !meetingTitle.trim()) {
-//       alert("لطفاً عنوان جلسه را وارد کنید.");
-//       return;
-//     }
-//     if (!meetingDate) {
-//       alert("لطفاً تاریخ جلسه را انتخاب کنید.");
-//       return;
-//     }
-//     if (!selectedParticipants || selectedParticipants.length === 0) {
-//       alert("لطفاً حداقل یک عضو برای جلسه انتخاب کنید.");
-//       return;
-//     }
-
-//     setTimeError("");
-//     let dateStr = "";
-//     try {
-//       if (meetingDate && typeof meetingDate.format === 'function') {
-//         dateStr = meetingDate.format("YYYY/MM/DD");
-//       } else if (meetingDate && meetingDate.toDate) {
-//         dateStr = meetingDate.toDate().toLocaleDateString('fa-IR');
-//       } else if (meetingDate instanceof Date) {
-//         dateStr = meetingDate.toLocaleDateString('fa-IR');
-//       } else {
-//         dateStr = String(meetingDate);
-//       }
-//     } catch (err) {
-//       dateStr = String(meetingDate);
-//     }
-
-//     alert(`موفقیت\nجلسه‌ی ${meetingTitle} در تاریخ ${dateStr} با موفقیت ذخیره شد.`);
-//     onClose();
-//   };
-
-//   if (!isOpen) return null;
-
-//   const filteredUsers = allUsers.filter(user =>
-//     user.name.includes(searchQuery) && !selectedParticipants.some(s => s.id === user.id)
-//   );
-
-//   return (
-//     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-//       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={onClose} />
-      
-//       <div className="bg-white w-full max-w-[650px] rounded-3xl p-6 shadow-2xl relative z-10 border border-slate-100 text-slate-800 overflow-hidden" dir="rtl">
-//         <button onClick={onClose} className="text-slate-400 hover:text-rose-500 mb-4 cursor-pointer">
-//           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-//         </button>
-
-//         <h2 className="text-lg font-bold text-slate-800 mb-4">ایجاد جلسه ی جدید</h2>
-
-//         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-//           <div className="grid grid-cols-[80px_1fr] items-center gap-2">
-//             <label className="text-sm font-bold">عنوان:</label>
-//             <input value={meetingTitle} onChange={(e) => setMeetingTitle(e.target.value)} type="text" className="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" />
-//           </div>
-
-//           <div className="grid grid-cols-[80px_1fr] items-start gap-2">
-//             <label className="text-sm font-bold mt-2">توضیحات:</label>
-//             <textarea rows="3" className="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 resize-none"></textarea>
-//           </div>
-
-//           <div className="grid grid-cols-[80px_1fr] items-start gap-2 relative" ref={searchRef}>
-//             <label className="text-sm font-bold mt-2">اعضا:</label>
-//             <div className="w-full flex flex-col gap-2">
-//               <div className="flex flex-wrap items-center gap-2">
-//                 <button type="button" onClick={() => setIsSearchOpen(!isSearchOpen)} className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold">+</button>
-//                 {selectedParticipants.map(user => (
-//                   <div key={user.id} onClick={() => setSelectedParticipants(selectedParticipants.filter(s => s.id !== user.id))} className="flex items-center gap-2 pr-1 pl-3 py-1 bg-white border border-slate-200 rounded-full cursor-pointer hover:border-rose-300">
-//                     <img src={user.avatar} className="w-7 h-7 rounded-full object-cover" />
-//                     <span className="text-xs font-bold">{user.name}</span>
-//                   </div>
-//                 ))}
-//               </div>
-//               {isSearchOpen && (
-//                 <div className="absolute top-full right-0 w-80 mt-1 bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
-//                   <input autoFocus value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="جستجو..." className="w-full p-3 text-xs border-b border-slate-50 outline-none" />
-//                   <div className="max-h-60 overflow-y-auto">
-//                     {filteredUsers.map(user => (
-//                       <div key={user.id} onClick={() => { setSelectedParticipants([...selectedParticipants, user]); setIsSearchOpen(false); }} className="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3">
-//                         <img src={user.avatar} className="w-10 h-10 rounded-full" />
-//                         <div>
-//                           <div className="font-bold text-sm">{user.name}</div>
-//                           <div className="text-[10px] text-indigo-950">{user.role}</div>
-//                         </div>
-//                       </div>
-//                     ))}
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-
-// <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-//   <div className="flex flex-col gap-1.5">
-//     <label className="text-xs font-bold">تاریخ:</label>
-//     <DatePicker 
-//       calendar={persian} 
-//       locale={persian_fa} 
-//       portal={true} 
-//       inputClass="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
-//       containerClassName="w-full" 
-//       value={meetingDate}
-//       onChange={setMeetingDate}
-//     />
-//   </div>
-  
-// <div className="flex flex-col gap-1.5" ref={startRef}>
-//   <label className="text-xs font-bold">شروع:</label>
-//   <div className="relative w-full">
-//     <button
-//       type="button"
-//       onClick={() => { setIsStartOpen((prev) => !prev); setIsEndOpen(false); }}
-//       className="relative w-full text-left px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-//     >
-//       <span>{startTime}</span>
-//       <span className="absolute inset-y-0 left-3 flex items-center text-slate-500">▾</span>
-//     </button>
-//     {isStartOpen && (
-//       <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
-//         {timeSlots.map((t) => (
-//           <button
-//             key={t}
-//             type="button"
-//             onClick={() => {
-//               setStartTime(t);
-//               setIsStartOpen(false);
-//               const selectedIndex = timeSlots.indexOf(t);
-//               const endIndex = timeSlots.indexOf(endTime);
-//               if (selectedIndex >= endIndex && selectedIndex < timeSlots.length - 1) {
-//                 setEndTime(timeSlots[selectedIndex + 1]);
-//               }
-//             }}
-//             className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100"
-//           >
-//             {t}
-//           </button>
-//         ))}
-//       </div>
-//     )}
-//   </div>
-// </div>
-
-// <div className="flex flex-col gap-1.5" ref={endRef}>
-//   <label className="text-xs font-bold">اتمام:</label>
-//   <div className="relative w-full">
-//     <button
-//       type="button"
-//       onClick={() => { setIsEndOpen((prev) => !prev); setIsStartOpen(false); }}
-//       className="relative w-full text-left px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-//     >
-//       <span>{endTime}</span>
-//       <span className="absolute inset-y-0 left-3 flex items-center text-slate-500">▾</span>
-//     </button>
-//     {isEndOpen && (
-//       <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
-//         {(() => {
-//           const available = timeSlots.slice(timeSlots.indexOf(startTime) + 1);
-//           if (available.length === 0) return <div className="p-3 text-xs text-slate-400">زمانی بعد از شروع وجود ندارد</div>;
-//           return available.map((t) => (
-//             <button
-//               key={t}
-//               type="button"
-//               onClick={() => {
-//                 setEndTime(t);
-//                 setIsEndOpen(false);
-//               }}
-//               className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100"
-//             >
-//               {t}
-//             </button>
-//           ));
-//         })()}
-//       </div>
-//     )}
-//   </div>
-// </div>
-// </div>
-
-//           {timeError && <div className="text-rose-600 text-xs text-right">{timeError}</div>}
-//           <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-all">ذخیره جلسه</button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AddMeetingModal;
-
-
 import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { useMeeting } from '../../Services/MeetingContext';
+import { userService } from "../../Services/UserService";
 import toast from 'react-hot-toast';
 
 const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
@@ -273,13 +26,29 @@ const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
   const startRef = useRef(null);
   const endRef = useRef(null);
 
-  const allUsers = [
-    { id: 101, name: "دکتر احمدی", role: "استاد راهنما", avatar: "https://i.pravatar.cc/150?u=101" },
-    { id: 102, name: "مهندس رضایی", role: "مدیر آموزش", avatar: "https://i.pravatar.cc/150?u=102" },
-    { id: 103, name: "سارا موسوی", role: "دانشجو", avatar: "https://i.pravatar.cc/150?u=103" },
-  ];
+  const [allUsers, setAllUsers] = useState([]);
 
-  const timeSlots = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00"];
+  const timeSlots = [];
+
+  for (let hour = 0; hour < 24; hour++) {
+    timeSlots.push(
+      `${hour.toString().padStart(2, "0")}:00`,
+      `${hour.toString().padStart(2, "0")}:30`
+    );
+  }
+  useEffect(() => {
+    if (!isOpen) return;
+
+    userService.getAllUsers()
+      .then(result => {
+        setAllUsers(result.items || []);
+      })
+      .catch(err => {
+        console.error(err);
+        toast.error("خطا در دریافت کاربران");
+      });
+
+  }, [isOpen]);
 
   // مدیریت کلیک خارج از باکس‌ها برای بستن منوها
   useEffect(() => {
@@ -301,6 +70,8 @@ const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
     if (!meetingDate) return toast.error("لطفاً تاریخ جلسه را انتخاب کنید.");
     if (!selectedType) return toast.error("لطفاً نوع جلسه را انتخاب کنید.");
 
+    const currentUserId = Number(userService.getCurrentUserId());
+
     // Prepare payload according to CreateMeetingViewModel
     const payload = {
       title: meetingTitle.trim(),
@@ -309,9 +80,11 @@ const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
       requestDate: new Date().toISOString(),
       status: 1, // Pending
       type: parseInt(selectedType, 10),
-      requesterUserIds: [1], // current user
-      assignedUserIds: [1], // assign to current user by default
-      tagIds: []
+      requesterUserIds: [currentUserId],
+      assignedUserIds: [
+        currentUserId,
+        ...selectedParticipants.map(x => x.id)
+      ], tagIds: []
     };
 
     setSubmitting(true);
@@ -328,12 +101,19 @@ const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
   };
 
 
-  const filteredUsers = allUsers.filter(u => u.name.includes(searchQuery) && !selectedParticipants.some(s => s.id === u.id));
+  const filteredUsers = allUsers.filter(
+    u =>
+      (`${u.firstName} ${u.lastName}`)
+        .includes(searchQuery) &&
+      !selectedParticipants.some(
+        s => s.id === u.id
+      )
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" dir="rtl">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={onClose} />
-      
+
       <div className="bg-white w-full max-w-[650px] rounded-3xl p-6 shadow-2xl relative z-[10000]">
         <button onClick={onClose} className="text-slate-400 hover:text-rose-500 mb-4 cursor-pointer">✕</button>
         <h2 className="text-lg font-bold text-slate-800 mb-4">ایجاد جلسه ی جدید</h2>
@@ -354,37 +134,105 @@ const AddMeetingModal = ({ isOpen, onClose, initialData, onCreated }) => {
           {/* اعضا */}
           <div className="grid grid-cols-[80px_1fr] items-start gap-2 relative" ref={searchRef}>
             <label className="text-sm font-bold mt-2">اعضا:</label>
-            <div className="flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => setIsSearchOpen(!isSearchOpen)} className="w-10 h-10 rounded-full bg-indigo-50 border text-indigo-600 font-bold">+</button>
-              {selectedParticipants.map(user => (
-                <div key={user.id} onClick={() => setSelectedParticipants(selectedParticipants.filter(s => s.id !== user.id))} className="flex items-center gap-2 pr-1 pl-3 py-1 bg-white border rounded-full cursor-pointer">
-                  <img src={user.avatar} className="w-7 h-7 rounded-full" alt="" />
-                  <span className="text-xs font-bold">{user.name}</span>
-                </div>
-              ))}
-            </div>
-            {isSearchOpen && (
-              <div className="absolute top-full right-0 w-64 mt-2 bg-white border shadow-xl rounded-2xl z-50">
-                <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="جستجو..." className="w-full p-3 text-xs border-b outline-none" />
-                {filteredUsers.map(user => (
-                  <div key={user.id} onClick={() => { setSelectedParticipants([...selectedParticipants, user]); setIsSearchOpen(false); }} className="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3">
-                    <img src={user.avatar} className="w-8 h-8 rounded-full" alt="" />
-                    <span className="text-sm">{user.name}</span>
+
+            <div className="flex flex-col gap-2">
+
+              {/* اعضای انتخاب شده */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(prev => !prev)}
+                  className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-lg font-bold"
+                >
+                  +
+                </button>
+
+                {selectedParticipants.map(user => (
+                  <div
+                    key={user.id}
+                    onClick={() =>
+                      setSelectedParticipants(
+                        selectedParticipants.filter(x => x.id !== user.id)
+                      )
+                    }
+                    className="flex items-center gap-2 bg-white border rounded-full px-2 py-1 cursor-pointer hover:border-red-300"
+                  >
+                    <img
+                      src={user.profileImageUrl || "/default-avatar.png"}
+                      className="w-7 h-7 rounded-full object-cover"
+                      alt=""
+                    />
+
+                    <span className="text-xs font-bold">
+                      {user.firstName} {user.lastName}
+                    </span>
+
+                    <span className="text-red-500 text-xs">✕</span>
                   </div>
                 ))}
               </div>
-            )}
+
+              {/* لیست کاربران */}
+              {isSearchOpen && (
+                <div className="absolute top-full right-0 mt-2 w-80 bg-white border shadow-xl rounded-2xl z-50 overflow-hidden">
+
+                  <input
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="جستجوی اعضا..."
+                    className="w-full p-3 border-b outline-none text-sm"
+                  />
+
+                  <div className="max-h-64 overflow-y-auto">
+
+                    {filteredUsers.map(user => (
+                      <div
+                        key={user.id}
+                        onClick={() => {
+                          setSelectedParticipants(prev => [...prev, user]);
+                          setSearchQuery("");
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer"
+                      >
+                        <img
+                          src={user.profileImageUrl || "/default-avatar.png"}
+                          className="w-10 h-10 rounded-full object-cover"
+                          alt=""
+                        />
+
+                        <div>
+                          <div className="font-bold text-sm">
+                            {user.firstName} {user.lastName}
+                          </div>
+
+                          <div className="text-xs text-slate-500">
+                            {user.position}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {filteredUsers.length === 0 && (
+                      <div className="p-4 text-center text-xs text-slate-400">
+                        کاربری یافت نشد
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* تاریخ و زمان */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-             <DatePicker calendar={persian} locale={persian_fa} value={meetingDate} onChange={setMeetingDate} inputClass="w-full px-3 py-2 text-xs border rounded-xl" placeholder="تاریخ" />
-             <div className="relative" ref={startRef}><button type="button" onClick={() => setIsStartOpen(!isStartOpen)} className="w-full py-2 text-xs border rounded-xl">{startTime} ▾</button>
-                {isStartOpen && <div className="absolute w-full bg-white border rounded-xl max-h-40 overflow-y-auto">{timeSlots.map(t => <button key={t} type="button" onClick={() => {setStartTime(t); setIsStartOpen(false)}} className="block w-full p-2 text-xs hover:bg-slate-100">{t}</button>)}</div>}
-             </div>
-             <div className="relative" ref={endRef}><button type="button" onClick={() => setIsEndOpen(!isEndOpen)} className="w-full py-2 text-xs border rounded-xl">{endTime} ▾</button>
-                {isEndOpen && <div className="absolute w-full bg-white border rounded-xl max-h-40 overflow-y-auto">{timeSlots.map(t => <button key={t} type="button" onClick={() => {setEndTime(t); setIsEndOpen(false)}} className="block w-full p-2 text-xs hover:bg-slate-100">{t}</button>)}</div>}
-             </div>
+            <DatePicker calendar={persian} locale={persian_fa} value={meetingDate} onChange={setMeetingDate} inputClass="w-full px-3 py-2 text-xs border rounded-xl" placeholder="تاریخ" />
+            <div className="relative" ref={startRef}><button type="button" onClick={() => setIsStartOpen(!isStartOpen)} className="w-full py-2 text-xs border rounded-xl">{startTime} ▾</button>
+              {isStartOpen && <div className="absolute w-full bg-white border rounded-xl max-h-40 overflow-y-auto">{timeSlots.map(t => <button key={t} type="button" onClick={() => { setStartTime(t); setIsStartOpen(false) }} className="block w-full p-2 text-xs hover:bg-slate-100">{t}</button>)}</div>}
+            </div>
+            <div className="relative" ref={endRef}><button type="button" onClick={() => setIsEndOpen(!isEndOpen)} className="w-full py-2 text-xs border rounded-xl">{endTime} ▾</button>
+              {isEndOpen && <div className="absolute w-full bg-white border rounded-xl max-h-40 overflow-y-auto">{timeSlots.map(t => <button key={t} type="button" onClick={() => { setEndTime(t); setIsEndOpen(false) }} className="block w-full p-2 text-xs hover:bg-slate-100">{t}</button>)}</div>}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
