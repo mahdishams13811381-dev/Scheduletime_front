@@ -22,6 +22,7 @@ import AddMeetingModal from './Home/Components/AddMeetingModal';
 import AddRequestModal from './Home/Components/AddRequestModal';
 import AddTaskComponent from './Home/Components/AddTaskComponent';
 import TaskAssigned from './TaskAssigned/TaskAssigned';
+import TaskAssignedList from './TaskAssigned/TaskAssignedList/TaskAssignedList';
 import MyCalendar from './MyCalendarPage/MyCalendarPage';
 import { UserProvider, useUser } from './Context/UserContext';
 import { useRequest } from './Services/RequestContext';
@@ -167,6 +168,14 @@ function AppContent({ isSidebarOpen, setIsSidebarOpen }) {
               element={
                 token
                   ? <TaskAssigned />
+                  : <Navigate to="/login" replace />
+              }
+            /> 
+              <Route
+              path="/TaskAssignedList"
+              element={
+                token
+                  ? <TaskAssignedList />
                   : <Navigate to="/login" replace />
               }
             />

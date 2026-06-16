@@ -11,6 +11,11 @@ const TaskService = {
     return toJson(res);
   },
 
+  getAssignTasks: async (userId) => {
+    const res = await fetch(`${BASE}/api/task/Assign-tasks?userId=${userId}`);
+    return toJson(res);
+  },
+
   createTask: async (model) => {
     const res = await fetch(`${BASE}/api/task`, {
       method: 'POST',
