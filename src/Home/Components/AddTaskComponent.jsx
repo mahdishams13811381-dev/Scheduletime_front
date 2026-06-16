@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import TaskService from "../../Services/TaskService";
-
+import { userService } from "../../Services/UserService";
 const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
   const [status, setStatus] = useState("در حال انجام");
   const [title, setTitle] = useState("");
@@ -36,20 +36,29 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
   };
 
   const CURRENT_USER_ID = getCurrentUserId();
-  const allUsers = [
-    { id: 101, name: "دکتر احمدی", role: "استاد راهنما", avatar: "https://i.pravatar.cc/150?u=101" },
-    { id: 102, name: "مهندس رضایی", role: "مدیر آموزش", avatar: "https://i.pravatar.cc/150?u=102" },
-    { id: 103, name: "سارا موسوی", role: "دانشجو", avatar: "https://i.pravatar.cc/150?u=103" },
-    { id: 104, name: "علی کریمی", role: "پژوهشگر", avatar: "https://i.pravatar.cc/150?u=104" },
-    { id: 105, name: "دکتر حسینی", role: "رئیس دانشکده", avatar: "https://i.pravatar.cc/150?u=105" },
-  ];
-
+  const [allUsers, setAllUsers] = useState([]);
   const statusOptions = ["انجام نشده", "در حال انجام", "انجام شده"];
   const priorityOptions = ["کم", "متوسط", "زیاد"];
 
-  const filteredUsers = allUsers.filter(u =>
-    u.name.includes(searchQuery) && !selectedParticipants.find(s => s.id === u.id)
+  const filteredUsers = allUsers.filter(
+    u =>
+      (`${u.firstName} ${u.lastName}`)
+        .includes(searchQuery) &&
+      !selectedParticipants.some(
+        p => p.id === u.id
+      )
   );
+
+  useEffect(() => {
+    userService.getAllUsers()
+      .then(result => {
+        setAllUsers(result.items || []);
+      })
+      .catch(err => {
+        console.error(err);
+        toast.error("خطا در دریافت کاربران");
+      });
+  }, []);
 
   const mapStatusToPersian = (status) => {
     const mapping = {
@@ -63,9 +72,9 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
 
   const mapPersianStatusToEnum = (persianStatus) => {
     const mapping = {
-      "انجام نشده": "Pending",
-      "در حال انجام": "InProgress",
-      "انجام شده": "Completed"
+      "انجام نشده": 1,
+      "در حال انجام": 2,
+      "انجام شده": 3
     };
     return mapping[persianStatus] || "Pending";
   };
@@ -87,7 +96,7 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
 
       const taskModel = {
         title: title.trim(),
-        description: title.trim(), // Use title as description if not provided
+        description: title.trim(),
         status: mapPersianStatusToEnum(status),
         dueDate: null,
         reminderDate: null,
@@ -97,6 +106,7 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
         tagIds: []
       };
 
+      
       const createdTask = await TaskService.createTask(taskModel);
       toast.success(`تسک "${title}" با موفقیت ایجاد شد!`);
 
@@ -130,7 +140,7 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
 
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={onClose} />
 
-      <div className="bg-white w-full max-w-[650px] rounded-3xl p-6 shadow-2xl relative z-10 border border-slate-100 overflow-hidden" dir="rtl">
+      <div className="bg-white w-full max-w-[650px] rounded-3xl p-6 shadow-2xl relative z-10 border border-slate-100 overflow-visible" dir="rtl">
         <button onClick={onClose} className="text-slate-400 hover:text-rose-500 mb-4 cursor-pointer p-1 rounded-full border-2 border-slate-300 hover:border-rose-300 w-7 h-7 flex items-center justify-center">
           <svg className="w-4 h-4" stroke="currentColor" fill="none" strokeWidth="3" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -157,8 +167,8 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
                   type="button"
                   onClick={() => setStatus(option)}
                   className={`px-4 py-2 text-xs rounded-xl border transition-all ${status === option
-                      ? "bg-indigo-100 border-indigo-500 text-indigo-700 font-bold"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    ? "bg-indigo-100 border-indigo-500 text-indigo-700 font-bold"
+                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                 >
                   {option}
@@ -186,8 +196,7 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
             <select
               value={assigneeType}
               onChange={(e) => setAssigneeType(e.target.value)}
-              disabled={!!forcedAssignee} // غیرقابل تغییر در صورت وجود مقدار اجباری
-              className={`w-full px-4 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all ${forcedAssignee ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
+              className={`w-full px-4 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all`}
             >
               <option value="خودم">خودم</option>
               <option value="دیگران">دیگران</option>
@@ -195,47 +204,99 @@ const AddTaskComponent = ({ onClose, forcedAssignee, onTaskCreated }) => {
           </div>
 
           {assigneeType === "دیگران" && (
-            <div className="grid grid-cols-[80px_1fr] items-start gap-2 relative" ref={searchRef}>
-              <label className="text-sm font-bold mt-2 text-slate-800">اعضا:</label>
-              <div className="w-full flex flex-col gap-2">
+            <div
+              className="grid grid-cols-[80px_1fr] items-start gap-2 relative"
+              ref={searchRef}
+            >
+              <label className="text-sm font-bold mt-2 text-slate-800">
+                اعضا:
+              </label>
+
+              <div className="flex flex-col gap-2">
+
+                {/* اعضای انتخاب شده */}
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold flex items-center justify-center hover:bg-indigo-100"
+                    onClick={() => setIsSearchOpen(prev => !prev)}
+                    className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-lg font-bold"
                   >
                     +
                   </button>
+
                   {selectedParticipants.map(user => (
-                    <div key={user.id} onClick={() => setSelectedParticipants(selectedParticipants.filter(s => s.id !== user.id))} className="flex items-center gap-2 pr-1 pl-3 py-1 bg-white border border-slate-200 rounded-full cursor-pointer hover:border-rose-300">
-                      <img src={user.avatar} className="w-7 h-7 rounded-full object-cover" />
-                      <span className="text-xs font-bold text-slate-700">{user.name}</span>
+                    <div
+                      key={user.id}
+                      onClick={() => {
+                        setSelectedParticipants(
+                          selectedParticipants.filter(s => s.id !== user.id)
+                        );
+                      }}
+                      className="flex items-center gap-2 bg-white border rounded-full px-2 py-1 cursor-pointer hover:border-red-300"
+                    >
+                      <img
+                        src={user.profileImageUrl || "/default-avatar.png"}
+                        className="w-10 h-10 rounded-full object-cover"
+                        alt=""
+                      />
+
+                      <div>
+                        <div className="font-bold text-sm">
+                          {user.firstName} {user.lastName}
+                        </div>
+
+                        <div className="text-xs text-slate-500">
+                          {user.position}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
 
+                {/* لیست کاربران */}
                 {isSearchOpen && (
-                  <div className="absolute top-full right-0 w-80 mt-1 bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
+                  <div className="absolute top-full right-0 mt-2 w-80 bg-white border shadow-xl rounded-2xl z-50 overflow-visible">
+
                     <input
                       autoFocus
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="جستجوی نام افراد..."
-                      className="w-full p-3 text-xs border-b border-slate-50 outline-none"
+                      placeholder="جستجوی اعضا..."
+                      className="w-full p-3 border-b outline-none text-sm"
                     />
-                    <div className="max-h-60 overflow-y-auto">
-                      {filteredUsers.length > 0 ? (
-                        filteredUsers.map(user => (
-                          <div key={user.id} onClick={() => { setSelectedParticipants([...selectedParticipants, user]); setIsSearchOpen(false); setSearchQuery(""); }} className="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3">
-                            <img src={user.avatar} className="w-10 h-10 rounded-full" />
-                            <div>
-                              <div className="font-bold text-sm text-slate-800">{user.name}</div>
-                              <div className="text-[10px] text-indigo-600">{user.role}</div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-4 text-xs text-slate-400 text-center">موردی یافت نشد</div>
+
+                    <div className="max-h-64 overflow-y-auto">
+
+                      {filteredUsers.map(user => (
+                        <div
+                          key={user.id}
+                          onClick={() => {
+                            setSelectedParticipants([
+                              ...selectedParticipants,
+                              user
+                            ]);
+                            setSearchQuery("");
+                            setIsSearchOpen(false);
+                          }}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer"
+                        >
+                          <img
+                            src={user.profileImageUrl || "/default-avatar.png"}
+                            className="w-7 h-7 rounded-full object-cover"
+                            alt=""
+                          />
+
+                          <span className="text-xs font-bold">
+                            {user.firstName} {user.lastName}
+                          </span>
+                          <span className="text-red-500 text-xs">✕</span>
+                        </div>
+                      ))}
+
+                      {filteredUsers.length === 0 && (
+                        <div className="p-4 text-center text-xs text-slate-400">
+                          کاربری یافت نشد
+                        </div>
                       )}
                     </div>
                   </div>
