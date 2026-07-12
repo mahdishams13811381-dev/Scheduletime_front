@@ -31,23 +31,24 @@ import TaskPage from './TaskPage/TaskPage';
 import TaskList from './TaskPage/TaskList/TaskList';
 import { TaskProvider } from './Services/TaskContext';
 import { RequestProvider } from './Services/RequestContext';
+import { useRequest } from './Services/RequestContext';
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <UserProvider>
       <RequestProvider>
-      <TaskProvider>
-        <MeetingProvider>
-          <CalendarProvider>
-            <Toaster position="top-center" reverseOrder={false} />
-            <BrowserRouter>
-              {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
-              <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-            </BrowserRouter>
-          </CalendarProvider>
-        </MeetingProvider>
-      </TaskProvider>
+        <TaskProvider>
+          <MeetingProvider>
+            <CalendarProvider>
+              <Toaster position="top-center" reverseOrder={false} />
+              <BrowserRouter>
+                {/* اکنون SidebarManager داخل BrowserRouter است و خطا رفع می‌شود */}
+                <AppContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+              </BrowserRouter>
+            </CalendarProvider>
+          </MeetingProvider>
+        </TaskProvider>
       </RequestProvider>
     </UserProvider>
   );
